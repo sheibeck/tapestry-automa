@@ -1,14 +1,13 @@
 import API, { graphqlOperation } from '@aws-amplify/api'
 import PubSub from '@aws-amplify/pubsub';
-import * as game from './libs/game';
-
-import { createTodo } from './graphql/mutations'
-
 import awsconfig from './aws-exports';
+import * as game from './libs/game';
 API.configure(awsconfig);
 PubSub.configure(awsconfig);
 
 import { listAutomaCards } from './graphql/queries'
+
+
 
 const QueryResult = document.getElementById('QueryResult');
 
@@ -22,11 +21,12 @@ async function getData() {
 }
 
 document.getElementById('newgame').addEventListener('click', ()=>{
-  $('#modalNewGame').modal('show');
+  $("#view-setup").removeClass("d-none");
+  $("#view-cards").addClass("d-none").removeClass("d-flex");
 });
 
 document.getElementById('startgame').addEventListener('click', ()=>{
-  game.newGame();
+  game.startGame();
 });
 
 document.getElementById('takeincome').addEventListener('click', ()=>{

@@ -14,7 +14,15 @@ module.exports = {
             {
                 test: /\.js$/,
                 exclude: /node_modules/
-            }
+            },
+		    {
+				test: /\.(png|jpe?g|gif)$/i,
+				loader: 'file-loader',
+				options: {					
+					outputPath: 'images',
+					name: '[name].[ext]?[hash]',
+				},
+			  },
         ]
     },
     devServer: {

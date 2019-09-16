@@ -1,3 +1,8 @@
+//images
+import card9 from "./../assets/images/automa-9.png";
+import card15 from "./../assets/images/automa-15.png";
+import card22 from "./../assets/images/automa-22.png";
+
 export let automaState = { 
     era: 0,
     deck: [8,9,10,11,12,13,14,15,16,17,18,19,20,21,22],
@@ -37,7 +42,7 @@ function clearCards() {
     document.getElementById("card1").innerHTML = "";
 }
 
-export function newGame() {
+export function startGame() {
     //starting hand is cards 1 through 7
     proxyAutomaState.hand = [1,2,3,4,5,6,7];
 
@@ -59,6 +64,9 @@ export function newGame() {
 
     updateAutomaStateUI();
     clearCards();
+
+    $("#view-setup").addClass("d-none");
+    $("#view-cards").removeClass("d-none").addClass("d-flex");
 
     console.log("New Game");
     console.log(proxyAutomaState);    
@@ -85,18 +93,31 @@ export function isIncomeTurn() {
     var takeIncome = proxyAutomaState.hand.length === 0;
 
     if (takeIncome) {
-        gameMessage("The Automa takes an Income Action.");
+        gameMessage("The Automa takes an Income Action. Score the Automa and then click the <strong>Take Automa Income</strong> button to start the next era.");
     }
 
     return takeIncome;
 }
 
 export function takeTurn() {
-    if (!isIncomeTurn()) {        
+    if (!isIncomeTurn()) {
+        
+        //create a temporary hand that we can shuffle, lay down on the table, then stick them in the discard pile
+        let tempHand = [];
         for(var i = 0; i < 2; i++) {
             let card = proxyAutomaState.hand.pop();
+            tempHand.push(card);           
+        };
+
+        //shuffle the two drawn cards so we lay them down randomly
+        shuffle(tempHand);
+
+        //now add the cards into the dicard pile
+        for(var i = 0; i < 2; i++) {
+            let card = tempHand.pop();
             proxyAutomaState.discard.push(card);
-            document.getElementById("card"+i).innerHTML = card;
+            //let cardImage = eval("card" + card);
+            document.getElementById("card"+i).innerHTML = `<img class="img-fluid" src="${card9}.png" alt="automa card ${card}" />`;
         };
 
         updateAutomaStateUI();
@@ -134,8 +155,11 @@ export function takeIncome() {
     console.log(proxyAutomaState);    
 }
 
+let modalMessage = $("#modalGameMessage")
+
 export function gameMessage(message) {
-    alert(message);
+    $(".modal-body", modalMessage).html(message);
+    modalMessage.modal('show');
 }
 
 export function shuffle(array) {   
