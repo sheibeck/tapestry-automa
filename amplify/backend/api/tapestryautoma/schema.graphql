@@ -1,0 +1,7 @@
+type AutomaCard @model {
+  id: ID!
+  name: String!
+  number: Int!
+  image: AWSURL!
+  description: String
+}

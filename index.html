@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Tapestry Automa Helper</title>
+  </head>
+  <body>
+    <div class="container-fluid">      
+      <div class="main">             
+        <div class="d-flex justify-content-between">
+          <button id="newgame" type="button" class="btn btn-primary m-2">Start New Game</button>          
+          <div>
+              <div class="text-right">Automa Era: <span class="font-italic" id="era"></span></div>
+              <div class="text-right">Progress Deck: <span  class="font-italic" id="progress"></span></div>
+              <div class="text-right">Discard: <span  class="font-italic" id="discard"></span></div>
+          </div>          
+          <button id="taketurn" type="button" class="btn btn-secondary m-2">Take Automa Turn</button>
+          <button id="takeincome" type="button" class="btn btn-secondary m-2">Take Automa Income</button>
+        </div>
+        <hr />
+        <div class="d-flex justify-content-center">
+          <div id="card0">
+            Click
+          </div>
+          |
+          <div id="card1">
+            Start New Game
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- modals -->
+    <div id="modalNewGame" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog  modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Automa Setup</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>
+            Set up as you would for a 3-player game except that you always start on the territory labeled <strong>“2/4”</strong> no matter which capital city mat you’re using.
+            </p>
+            <p>Set up for yourself following the normal rules, then for the bots:</p>
+            <ol>
+              <li>Choose a color for the Automa. Give it the following components and nothing else:</li>
+                <ol type="a">
+                  <li>The Automa income mat with the normal side up.</li>
+                  <li>All outposts of its color. Place 2 of them on the territory labeled <strong>“3/5”</strong>.</li>
+                  <li>All player tokens of its color: Place 1 on 0 VP and 1 on the starting space of each advancement track.</li>
+                  <li>Roll the science die and place the Automa civilization card side with the corresponding icon face-up on the Automa’s income mat.</li>
+                  <li>Place 1 of the Automa’s outposts next to the track indicated by the heart icon on its civilization card. This is the Automa’s favorite track.</li>
+                </ol>
+              <li>Choose a color for the Shadow Empire. Give it the following components and nothing else:</li>
+                <ol type="a">
+                  <li>All outposts of its color.</li>
+                  <li>Five player tokens. Place 1 on the starting space of each advancement track. Set 1 aside.</li>
+                  <li>Roll the science die until you get a track different than the Automa’s favorite track. Place 1 of its outposts by this track. This is the Shadow Empire’s favorite track.</li>
+                </ol>
+              </ol>               
+            </ol>
+            <p>
+              <a target="_blank" href="https://app.box.com/s/uqp6m71co7gdyfahz5qamp3bd7o1v06i">Download the rules</a>
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button id="startgame" type="button" data-dismiss="modal" class="btn btn-primary">Start Game</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="main.bundle.js"></script>    
+  </body>
+</html>
