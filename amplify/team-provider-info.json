@@ -1,14 +1,14 @@
 {
     "develop": {
         "awscloudformation": {
-            "AuthRoleName": "tapestry-automa-develop-20190914090722-authRole",
-            "UnauthRoleArn": "arn:aws:iam::210120940769:role/tapestry-automa-develop-20190914090722-unauthRole",
-            "AuthRoleArn": "arn:aws:iam::210120940769:role/tapestry-automa-develop-20190914090722-authRole",
+            "AuthRoleName": "tapestry-automa-develop-20190916152113-authRole",
+            "UnauthRoleArn": "arn:aws:iam::210120940769:role/tapestry-automa-develop-20190916152113-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::210120940769:role/tapestry-automa-develop-20190916152113-authRole",
             "Region": "us-east-1",
-            "DeploymentBucketName": "tapestry-automa-develop-20190914090722-deployment",
-            "UnauthRoleName": "tapestry-automa-develop-20190914090722-unauthRole",
-            "StackName": "tapestry-automa-develop-20190914090722",
-            "StackId": "arn:aws:cloudformation:us-east-1:210120940769:stack/tapestry-automa-develop-20190914090722/97cf9690-d6f0-11e9-9164-0e0621d8669c"
+            "DeploymentBucketName": "tapestry-automa-develop-20190916152113-deployment",
+            "UnauthRoleName": "tapestry-automa-develop-20190916152113-unauthRole",
+            "StackName": "tapestry-automa-develop-20190916152113",
+            "StackId": "arn:aws:cloudformation:us-east-1:210120940769:stack/tapestry-automa-develop-20190916152113/272742d0-d8b7-11e9-92b9-1251e602a9c6"
         }
     }
 }
