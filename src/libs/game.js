@@ -1,6 +1,25 @@
 //images
+import card1 from "./../assets/images/automa-1.png";
+import card2 from "./../assets/images/automa-2.png";
+import card3 from "./../assets/images/automa-3.png";
+import card4 from "./../assets/images/automa-4.png";
+import card5 from "./../assets/images/automa-5.png";
+import card6 from "./../assets/images/automa-6.png";
+import card7 from "./../assets/images/automa-7.png";
+import card8 from "./../assets/images/automa-8.png";
 import card9 from "./../assets/images/automa-9.png";
+import card10 from "./../assets/images/automa-10.png";
+import card11 from "./../assets/images/automa-11.png";
+import card12 from "./../assets/images/automa-12.png";
+import card13 from "./../assets/images/automa-13.png";
+import card14 from "./../assets/images/automa-14.png";
 import card15 from "./../assets/images/automa-15.png";
+import card16 from "./../assets/images/automa-16.png";
+import card17 from "./../assets/images/automa-17.png";
+import card18 from "./../assets/images/automa-18.png";
+import card19 from "./../assets/images/automa-19.png";
+import card20 from "./../assets/images/automa-20.png";
+import card21 from "./../assets/images/automa-21.png";
 import card22 from "./../assets/images/automa-22.png";
 
 export let automaState = { 
@@ -115,9 +134,8 @@ export function takeTurn() {
         //now add the cards into the dicard pile
         for(var i = 0; i < 2; i++) {
             let card = tempHand.pop();
-            proxyAutomaState.discard.push(card);
-            //let cardImage = eval("card" + card);
-            document.getElementById("card"+i).innerHTML = `<img class="img-fluid" src="${card9}.png" alt="automa card ${card}" />`;
+            proxyAutomaState.discard.push(card);            
+            document.getElementById("card"+i).innerHTML = `<img class="img-fluid" src="images/automa-${card}.png" alt="automa card ${card}" />`;
         };
 
         updateAutomaStateUI();
@@ -125,6 +143,10 @@ export function takeTurn() {
         console.log("Take Turn");
         console.log(proxyAutomaState);    
     }
+}
+
+export function confirmTakeIncome() {
+    $('#modalConfirmIncome').modal("show");
 }
 
 export function takeIncome() {
@@ -156,7 +178,6 @@ export function takeIncome() {
 }
 
 let modalMessage = $("#modalGameMessage")
-
 export function gameMessage(message) {
     $(".modal-body", modalMessage).html(message);
     modalMessage.modal('show');
@@ -181,3 +202,12 @@ export function shuffle(array) {
     return array;     
 }
 
+
+export function confirmNewGame() {
+    $('#modalConfirmNewGame').modal("show");
+}
+
+export function doConfirmNewGame() {
+    $("#view-setup").removeClass("d-none");
+    $("#view-cards").addClass("d-none").removeClass("d-flex");
+}

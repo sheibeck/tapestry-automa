@@ -7,8 +7,6 @@ PubSub.configure(awsconfig);
 
 import { listAutomaCards } from './graphql/queries'
 
-
-
 const QueryResult = document.getElementById('QueryResult');
 
 async function getData() {
@@ -21,8 +19,11 @@ async function getData() {
 }
 
 document.getElementById('newgame').addEventListener('click', ()=>{
-  $("#view-setup").removeClass("d-none");
-  $("#view-cards").addClass("d-none").removeClass("d-flex");
+  game.confirmNewGame();
+});
+
+document.getElementById('newGameYes').addEventListener('click', ()=>{
+  game.doConfirmNewGame();
 });
 
 document.getElementById('startgame').addEventListener('click', ()=>{
@@ -30,6 +31,10 @@ document.getElementById('startgame').addEventListener('click', ()=>{
 });
 
 document.getElementById('takeincome').addEventListener('click', ()=>{
+  game.confirmTakeIncome();  
+});
+
+document.getElementById('takeIncomeYes').addEventListener('click', ()=>{
   game.takeIncome();  
 });
 
