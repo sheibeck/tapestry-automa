@@ -1,7 +1,10 @@
 type AutomaCard @model {
   id: ID!
-  name: String!
-  number: Int!
-  image: AWSURL!
-  description: String
+  favorite: Int
+  military: Int
+  science: Int
+  exploration: Int
+  technology: Int
+  topple: Boolean
+  income: Boolean
 }

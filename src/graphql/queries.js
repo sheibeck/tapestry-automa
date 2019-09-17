@@ -4,10 +4,13 @@
 export const getAutomaCard = `query GetAutomaCard($id: ID!) {
   getAutomaCard(id: $id) {
     id
-    name
-    number
-    image
-    description
+    favorite
+    military
+    science
+    exploration
+    technology
+    topple
+    income
   }
 }
 `;
@@ -19,10 +22,13 @@ export const listAutomaCards = `query ListAutomaCards(
   listAutomaCards(filter: $filter, limit: $limit, nextToken: $nextToken) {
     items {
       id
-      name
-      number
-      image
-      description
+      favorite
+      military
+      science
+      exploration
+      technology
+      topple
+      income
     }
     nextToken
   }

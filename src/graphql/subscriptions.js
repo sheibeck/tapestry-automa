@@ -4,30 +4,39 @@
 export const onCreateAutomaCard = `subscription OnCreateAutomaCard {
   onCreateAutomaCard {
     id
-    name
-    number
-    image
-    description
+    favorite
+    military
+    science
+    exploration
+    technology
+    topple
+    income
   }
 }
 `;
 export const onUpdateAutomaCard = `subscription OnUpdateAutomaCard {
   onUpdateAutomaCard {
     id
-    name
-    number
-    image
-    description
+    favorite
+    military
+    science
+    exploration
+    technology
+    topple
+    income
   }
 }
 `;
 export const onDeleteAutomaCard = `subscription OnDeleteAutomaCard {
   onDeleteAutomaCard {
     id
-    name
-    number
-    image
-    description
+    favorite
+    military
+    science
+    exploration
+    technology
+    topple
+    income
   }
 }
 `;

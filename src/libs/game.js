@@ -1,5 +1,27 @@
+import API, { graphqlOperation } from '@aws-amplify/api'
+import PubSub from '@aws-amplify/pubsub';
+import awsconfig from './../aws-exports';
+API.configure(awsconfig);
+PubSub.configure(awsconfig);
+import { getAutomaCard } from './../graphql/queries';
+
+import IconFavorite from "./../assets/images/military.png";
+import IconMilitary from "./../assets/images/military.png";
+import IconExploration from "./../assets/images/exploration.png";
+import IconScience from "./../assets/images/science.png";
+import IconTechnology from "./../assets/images/technology.png";
+import IconIncome from "./../assets/images/income.png";
+import IconTopple from "./../assets/images/topple.png";
+
+
+
 export const viewcards = document.getElementById("view-cards");
 export const viewsetup = document.getElementById("view-setup");
+
+const resultAutoma1 = document.getElementById("automaResult1");
+const resultAutoma2 = document.getElementById("automaResult2");
+const resultShadowEmpire1 = document.getElementById("shadowEmpireResult1");
+const resultShadowEmpire2 = document.getElementById("shadowEmpireResult2");
 
 export let automaState = { 
     era: 0,
@@ -36,7 +58,8 @@ function updateAutomaStateUI() {
 }
 
 function clearTurnResult() {
-    viewcards.innerHTML = "<div class='col text-center'>Click <strong>Take Automa Turn</strong>.</div>";
+    resultAutoma2.innerHTML = "<div class='col text-center'>Click <strong>Take Automa Turn</strong>.</div>";
+    resultShadowEmpire2.innerHTML = "<div class='col text-center'>Click <strong>Take Automa Turn</strong>.</div>";
 }
 
 export function startGame() {
@@ -112,18 +135,8 @@ export function takeTurn() {
         //now add the cards into the dicard pile
         for(var i = 0; i < 2; i++) {
             let card = tempHand.pop();
-            proxyAutomaState.discard.push(card);            
-            //document.getElementById("card"+i).innerHTML = `<img class="img-fluid" src="images/automa-${card}.png" alt="automa card ${card}" />`;
-
-            // Replace the HTML of #list with final HTML
-            viewcards.innerHTML = `
-                                    <div class="col-12 col-sm-6">
-                                        Automa ${card}
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        Shadow Empire ${card}
-                                    </div>
-                                   `;
+            proxyAutomaState.discard.push(card);
+            displayAutomaResult(card, i+1);
         };
 
         updateAutomaStateUI();
@@ -190,7 +203,6 @@ export function shuffle(array) {
     return array;     
 }
 
-
 export function confirmNewGame() {
     $('#modalConfirmNewGame').modal("show");
 }
@@ -199,3 +211,43 @@ export function doConfirmNewGame() {
     this.viewsetup.style.display = "";
     this.viewcards.style.display = "none";
 }
+
+async function displayAutomaResult(cardNum, position) {
+    console.log("Drew card: " + cardNum);
+
+    //TODO: Use the full 1-22
+    if (parseInt(cardNum) > 8) cardNum = '1';
+        
+    API.graphql(graphqlOperation(getAutomaCard, { id: cardNum })).then((evt) => {
+
+        let card = evt.data.getAutomaCard;
+
+        if (position == 1) {
+            resultAutoma1.innerHTML = `Furthest track with an available building`;
+            resultShadowEmpire1.innerHTML = `Any track where it has not reached the end`;
+        }
+
+        if (position == 2) {             
+            resultAutoma2.innerHTML = "";
+            let htmlOut = "";
+            if (card.favorite > 0) htmlOut += `<img src="${IconFavorite}" alt="favorite" class="order-${card.favorite}" />`;
+            if (card.military > 0) htmlOut += `<img src="${IconMilitary}" alt="military" class="order-${card.military}" />`;
+            if (card.science > 0) htmlOut += `<img src="${IconScience}" alt="science" class="order-${card.science}" />`;
+            if (card.exploration > 0) htmlOut += `<img src="${IconExploration}" alt="exploration" class="order-${card.exploration}" />`;
+            if (card.technology > 0) htmlOut += `<img src="${IconTechnology}" alt="technology" class="order-${card.technology}" />`;
+            resultAutoma2.innerHTML = htmlOut;
+            
+            resultShadowEmpire2.innerHTML = "";
+            //flexbox reverse so we get the opposite order of the automa
+            htmlOut = `<div class="d-flex flex-row-reverse justify-content-between">`;
+            if (card.favorite > 0) htmlOut += `<img src="${IconFavorite}" alt="favorite" class="order-${card.favorite}" />`;
+            if (card.military > 0) htmlOut += `<img src="${IconMilitary}" alt="military" class="order-${card.military}" />`;
+            if (card.science > 0) htmlOut += `<img src="${IconScience}" alt="science" class="order-${card.science}" />`;
+            if (card.exploration > 0) htmlOut += `<img src="${IconExploration}" alt="exploration" class="order-${card.exploration}" />`;
+            if (card.technology > 0) htmlOut += `<img src="${IconTechnology}" alt="technology" class="order-${card.technology}" />`;
+            htmlOut += `</div>`;
+            resultShadowEmpire2.innerHTML = htmlOut;
+        }
+    });
+}
+
