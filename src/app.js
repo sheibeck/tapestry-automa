@@ -120,9 +120,12 @@ function updateAutomaStateUI() {
 
 function clearTurnResult() {
     resultAutoma2.innerHTML = "<div class='col text-center'>Click <strong>Take Automa Turn</strong>.</div>";
+    resultAutoma1.innerHTML = "";
+    resultShadowEmpire.innerHTML = "";
     toppleResult.style.display = "none";
     incomeResult.style.display = "none";
     conquerTieBreakerResult.style.display = "none";
+    currentCards.innerHTML = "";
 }
 
 const meeples = [
@@ -137,7 +140,7 @@ function colorPicker() {
     return meeples.splice(parseInt(Math.random() * meeples.length), 1)[0];
 }
 
-function startGame() {    
+function startGame() {  
     //choose colors for bots
     meepleAutoma.src = colorPicker();
     meepleShadowEmpire.src = colorPicker();
@@ -298,6 +301,10 @@ function confirmNewGame() {
 function doConfirmNewGame() {
     viewsetup.style.display = "";
     viewcards.style.display = "none";
+    era.innerHTML = "&mdash;";
+    progress.innerHTML = "&mdash;";
+    discard.innerHTML = "&mdash;";
+    clearTurnResult();    
 }
 
 async function displayAutomaResult(cards) {
