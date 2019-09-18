@@ -12,19 +12,41 @@ import IconScience from "./assets/images/science.png";
 import IconTechnology from "./assets/images/technology.png";
 import IconIncome from "./assets/images/income.png";
 import IconTopple from "./assets/images/topple.png";
-import IconEmpty from "./assets/images/empty.png";
+import IconConquerTieBreakerNW from "./assets/images/tie-breaker-nw.png";
+import IconLeftArrow from "./assets/images/left-arrow.png";
+import IconRightArrow from "./assets/images/right-arrow.png";
+import IconFlag from "./assets/images/flag.png";
+import IconHouse from "./assets/images/house.png";
+import IconSquare from "./assets/images/square.png";
+
+//meeples
+import MeepleBlue from "./assets/images/meeple-blue.png";
+import MeepleYellow from "./assets/images/meeple-yellow.png";
+import MeepleGreen from "./assets/images/meeple-green.png";
+import MeepleRed from "./assets/images/meeple-red.png";
+import MeepleOrange from "./assets/images/meeple-orange.png";
+
 
 //vars
 const viewcards = document.getElementById("view-cards");
 const viewsetup = document.getElementById("view-setup");
 const resultAutoma1 = document.getElementById("automaResult1");
 const resultAutoma2 = document.getElementById("automaResult2");
-const resultShadowEmpire1 = document.getElementById("shadowEmpireResult1");
-const resultShadowEmpire2 = document.getElementById("shadowEmpireResult2");
+const resultShadowEmpire = document.getElementById("shadowEmpireResult");
 const incomeResult = document.getElementById("income");
 const toppleResult = document.getElementById("topple");
-const emptyResult = document.getElementById("empty");
-const currentCards = document.getElementById("currentcards");
+const conquerTieBreakerResult = document.getElementById("conquer-tie-breaker");
+const meepleAutoma = document.getElementById("automa-meeple");
+const meepleShadowEmpire = document.getElementById("shadowempire-meeple");
+
+//game state
+let automaState = { 
+    era: 0,
+    deck: [8,9,10,11,12,13,14,15,16,17,18,19,20,21,22],
+    discard: [],
+    hand: [],
+    currentCards: [],
+};
 
 //get the card data from dynamodb
 export let cardData = null;
@@ -62,13 +84,6 @@ document.getElementById('taketurn').addEventListener('click', ()=>{
 });
 
 //methods
-let automaState = { 
-    era: 0,
-    deck: [8,9,10,11,12,13,14,15,16,17,18,19,20,21,22],
-    discard: [],
-    hand: [],
-};
-
 let automaStateHandler = {  
     get: function(target, name) {
         return target[name];
@@ -98,11 +113,26 @@ function updateAutomaStateUI() {
 }
 
 function clearTurnResult() {
-    resultAutoma2.innerHTML = "<div class='col text-center'>Click <strong>Take Automa Turn</strong>.</div>";
-    resultShadowEmpire2.innerHTML = "<div class='col text-center'>Click <strong>Take Automa Turn</strong>.</div>";
+    resultAutoma2.innerHTML = "<div class='col text-center'>Click <strong>Take Automa Turn</strong>.</div>";    
 }
 
-function startGame() {
+const meeples = [
+    MeepleBlue,
+    MeepleRed,
+    MeepleYellow,
+    MeepleGreen,
+    MeepleOrange,
+  ];
+      
+function colorPicker() {    
+    return meeples.splice(parseInt(Math.random() * meeples.length), 1)[0];
+}
+
+function startGame() {    
+    //choose colors for bots
+    meepleAutoma.src = colorPicker();
+    meepleShadowEmpire.src = colorPicker();
+
     //starting hand is cards 1 through 7
     proxyAutomaState.hand = [1,2,3,4,5,6,7];
 
@@ -134,7 +164,7 @@ function startGame() {
 
 // add cards to hand
 function addToHand(numCards) {    
-    for(var i = 0; i < numCards; i++) {
+    for(let i = 0; i < numCards; i++) {
         let card = proxyAutomaState.deck.pop();
         proxyAutomaState.hand.push(card);
     };
@@ -162,24 +192,23 @@ function isIncomeTurn() {
 function takeTurn() {
     if (!isIncomeTurn()) {
         
-        //create a temporary hand that we can shuffle, lay down on the table, then stick them in the discard pile
-        let tempHand = [];
-        for(var i = 0; i < 2; i++) {
+        //move the current cards into the discard pile        
+        while(proxyAutomaState.currentCards.length > 0)
+        {
+            let card = proxyAutomaState.currentCards.pop();
+            proxyAutomaState.discard.push(card);
+        };
+
+        //play 2 new cards
+        const cardsToPlay = 2;
+        for(let i = 0; i < cardsToPlay; i++) {
             let card = proxyAutomaState.hand.pop();
-            tempHand.push(card);           
+            proxyAutomaState.currentCards.push(card);           
         };
 
         //shuffle the two drawn cards so we lay them down randomly
-        shuffle(tempHand);
-
-        //now add the cards into the dicard pile
-        currentCards.innerHTML = "Show Automa Cards ";
-        for(var i = 0; i < 2; i++) {
-            let card = tempHand.pop();
-            proxyAutomaState.discard.push(card);
-            displayAutomaResult(card, i+1);
-            currentCards.innerHTML += card + (i === 0 ? " and " : "");
-        };
+        shuffle(proxyAutomaState.currentCards);
+        displayAutomaResult(proxyAutomaState.currentCards);
 
         updateAutomaStateUI();
 
@@ -254,41 +283,45 @@ function doConfirmNewGame() {
     viewcards.style.display = "none";
 }
 
-async function displayAutomaResult(cardNum, position) {
-    console.log("Display Automa Result");
+async function displayAutomaResult(cards) {
+    console.log("Display Automa Result");   
 
-    let card = cardData.items.find(item => {
-        return item.id == cardNum;
+    //get the left card details
+    let leftcard = cardData.items.find(item => {
+        return item.id == cards[0];
     });
 
-    if (position == 1) {
-        resultAutoma1.innerHTML = `Furthest track with an available building`;
-        resultShadowEmpire1.innerHTML = `Any track where it has not reached the end`;
-    }
+    //get the right card details
+    let rightcard = cardData.items.find(item => {
+        return item.id == cards[1];
+    });
 
-    if (position == 2) {
-        resultAutoma2.innerHTML = "";
-        let htmlOut = "";
-        if (card.favorite > 0) htmlOut += `<img src="${IconFavorite}" alt="favorite" class="order-${card.favorite}" />`;
-        if (card.military > 0) htmlOut += `<img src="${IconMilitary}" alt="military" class="order-${card.military}" />`;
-        if (card.science > 0) htmlOut += `<img src="${IconScience}" alt="science" class="order-${card.science}" />`;
-        if (card.exploration > 0) htmlOut += `<img src="${IconExploration}" alt="exploration" class="order-${card.exploration}" />`;
-        if (card.technology > 0) htmlOut += `<img src="${IconTechnology}" alt="technology" class="order-${card.technology}" />`;
-        resultAutoma2.innerHTML = htmlOut;
+    //update the ui
+    for(let position = 0; position < proxyAutomaState.currentCards.length; position++) {
+        let card = proxyAutomaState.currentCards[position];
         
-        resultShadowEmpire2.innerHTML = "";
-        //flexbox reverse so we get the opposite order of the automa
-        htmlOut = `<div class="d-flex flex-row-reverse justify-content-between">`;
-        if (card.favorite > 0) htmlOut += `<img src="${IconFavorite}" alt="favorite" class="order-${card.favorite}" />`;
-        if (card.military > 0) htmlOut += `<img src="${IconMilitary}" alt="military" class="order-${card.military}" />`;
-        if (card.science > 0) htmlOut += `<img src="${IconScience}" alt="science" class="order-${card.science}" />`;
-        if (card.exploration > 0) htmlOut += `<img src="${IconExploration}" alt="exploration" class="order-${card.exploration}" />`;
-        if (card.technology > 0) htmlOut += `<img src="${IconTechnology}" alt="technology" class="order-${card.technology}" />`;
-        htmlOut += `</div>`;
-        resultShadowEmpire2.innerHTML = htmlOut;
+        switch (position)
+        {
+            case 0:               
+                resultAutoma1.innerHTML = `<img src="${IconHouse}" class="track-icon" /> Furthest track with an available building`;
+                resultShadowEmpire.innerHTML = `<img src="${IconSquare}" class="track-icon" /> Any track where it has not reached the end`;
+                break;
 
-        incomeResult.style.display = card.income ? "" : "none";
-        toppleResult.style.display = card.topple ? "" : "none";
-        emptyResult.style.display = !card.income && !card.topple ? "" : "none";
-    }
+            default:
+                
+                resultAutoma2.innerHTML = "";
+                let htmlOut = "";
+                if (rightcard.favorite > 0) htmlOut += `<img src="${IconFavorite}" alt="favorite" class="order-${rightcard.favorite}" />`;
+                if (rightcard.military > 0) htmlOut += `<img src="${IconMilitary}" alt="military" class="order-${rightcard.military}" />`;
+                if (rightcard.science > 0) htmlOut += `<img src="${IconScience}" alt="science" class="order-${rightcard.science}" />`;
+                if (rightcard.exploration > 0) htmlOut += `<img src="${IconExploration}" alt="exploration" class="order-${rightcard.exploration}" />`;
+                if (rightcard.technology > 0) htmlOut += `<img src="${IconTechnology}" alt="technology" class="order-${rightcard.technology}" />`;
+                resultAutoma2.innerHTML = htmlOut;                           
+
+                incomeResult.style.display = leftcard.income ? "" : "none";
+                toppleResult.style.display = rightcard.topple ? "" : "none";
+                conquerTieBreakerResult.style.display = "";
+                conquerTieBreakerResult.src = IconConquerTieBreakerNW;
+        }
+    }    
 }

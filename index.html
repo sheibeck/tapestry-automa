@@ -9,9 +9,14 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <style>
-      img.action-icon {
-        width: 30px;
-        height: 30px;
+      img.track-icon {
+        width: 20px;
+        height: 20px;
+      }
+
+      img.meeple-icon {
+        width: 25px;
+        height: 25px;
       }
 
       body {
@@ -26,7 +31,7 @@
   </head>
   <body class="d-flex flex-column h-100">
     <nav class="navbar text-white navbar-dark bg-dark">
-        <div class="text-center col-12 text-uppercase">Tapestry Automa Helper</div>
+        <div class="text-center col-12 text-uppercase">Tapestry Bot</div>
     </nav>
     <main role="main" class="flex-fill">
       <div class="container-fluid">
@@ -83,20 +88,25 @@
           </div>
 
           <div id="view-cards" class="row" style="display:none;">
-            <div class="h4 col-12 text-center">Automa</div>
+            <div class="h4 col-12 justify-content-center d-flex"><img id="automa-meeple" src="" alt="automa meeple" class="meeple-icon align-self-center mr-1" /> Automa</div>
             <div id="automaResult1" class="h6 col-12 text-center text-dark font-italic"></div>
-            <div id="automaResult2" class="d-flex col-12 justify-content-between">                       
+            <div class="col-12 text-center mb-2">
+                <img src="images/right-arrow.png" alt="right arrow" />
+              </div>
+            <div id="automaResult2" class="d-flex col-12 justify-content-between">                   
             </div>
-            <div class="h4 col-12 text-center mt-3">Shadow Empire</div>
-            <div id="shadowEmpireResult1" class="h6 col-12 text-center text-dark font-italic"></div>
-            <div id="shadowEmpireResult2" class="col-12 mt-2 mt-md-0">
+            <div class="col-12 text-center mt-2">
+              <img src="images/left-arrow.png" alt="left arrow" />
+            </div>
+            <div class="h4 col-12 justify-content-center d-flex mt-3"><img id="shadowempire-meeple" src="" alt="shadow empire meeple" class="meeple-icon align-self-center mr-1" /> Shadow Empire</div>
+            <div id="shadowEmpireResult" class="h6 col-12 text-center text-dark font-italic"></div>
             </div>
 
-            <div class="h4 col-12 text-center mt-3">Income / Topple</div>
+            <hr />
             <div class="d-flex col-12 justify-content-center mt-2">
-              <img id="income" src="images/income.png" alt="income" class="mx-2" style="display:none;" />
-              <img id="topple" src="images/topple.png" alt="topple" class="mx-2" style="display:none;" />
-              <img id="empty" src="images/empty.png" alt="topple" class="mx-2"  />
+              <img id="income" src="images/income.png" alt="income" class="mx-2 align-self-center" style="display:none;" />
+              <img id="conquer-tie-breaker" src="" alt="conquer tie-breaker" class="mx-2" style="display:none;" />
+              <img id="topple" src="images/topple.png" alt="topple" class="mx-2 align-self-center" style="display:none;" />
             </div>          
           </div>
 
