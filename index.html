@@ -7,8 +7,9 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Cinzel&display=swap" rel="stylesheet">
 
-    <style>
+    <style>      
       img.track-icon {
         width: 20px;
         height: 20px;
@@ -19,8 +20,17 @@
         height: 25px;
       }
 
+      img.logo-banner {
+        width: 30px;
+        height: 30px;
+      }
+
+      .tap-font {
+        font-family: 'Cinzel', serif;
+      }
+
       body {
-        min-height:100vh;
+        min-height:100vh;        
       }
     </style>
 
@@ -31,10 +41,10 @@
   </head>
   <body class="d-flex flex-column h-100">
     <nav class="navbar text-white navbar-dark bg-dark">
-        <div class="text-center col-12 text-uppercase">Tapestry Bot</div>
+        <div class="text-center col-12 text-uppercase tap-font"><img class="logo-banner mr-2" src="images/banner.png" alt="banner" />Tapestry Bot<img class="logo-banner ml-2" src="images/banner.png" alt="banner" /></div>
     </nav>
     <main role="main" class="flex-fill">
-      <div class="container-fluid">
+      <div class="container">
           <div class="row text-center mt-1">
             <div class="col-12 col-md-4 order-1">
               <button id="newgame" type="button" class="btn btn-primary btn-block"><i class="fas fa-plus-circle"></i> Start New Game</button>
@@ -47,7 +57,7 @@
             </div>
           </div>
           <div class="row bg-warning my-1">           
-            <div class="text-center col">Automa Era: <span class="font-italic" id="era"></span></div> 
+            <div class="text-center col">Era: <span class="font-italic" id="era"></span></div> 
             <div class="text-center col">Progress: <span class="font-italic" id="progress"></span></div> 
             <div class="text-center col">Discard: <span class="font-italic" id="discard"></span></div>           
           </div>   
@@ -93,7 +103,7 @@
             <div class="col-12 text-center mb-2">
                 <img src="images/right-arrow.png" alt="right arrow" />
               </div>
-            <div id="automaResult2" class="d-flex col-12 justify-content-between">                   
+            <div id="automaResult2" class="d-flex col-12 justify-content-center">                   
             </div>
             <div class="col-12 text-center mt-2">
               <img src="images/left-arrow.png" alt="left arrow" />
@@ -107,7 +117,11 @@
               <img id="income" src="images/income.png" alt="income" class="mx-2 align-self-center" style="display:none;" />
               <img id="conquer-tie-breaker" src="" alt="conquer tie-breaker" class="mx-2" style="display:none;" />
               <img id="topple" src="images/topple.png" alt="topple" class="mx-2 align-self-center" style="display:none;" />
-            </div>          
+            </div>
+
+            <div id="currentcards" class="d-flex col-12 justify-content-center mt-5 small text-muted">
+
+            </div>
           </div>
 
           <div id="currentcards" class="text-muted text-center py-5">

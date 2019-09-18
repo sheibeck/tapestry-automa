@@ -18,6 +18,7 @@ import IconRightArrow from "./assets/images/right-arrow.png";
 import IconFlag from "./assets/images/flag.png";
 import IconHouse from "./assets/images/house.png";
 import IconSquare from "./assets/images/square.png";
+import IconBanner from "./assets/images/banner.png";
 
 //meeples
 import MeepleBlue from "./assets/images/meeple-blue.png";
@@ -38,6 +39,10 @@ const toppleResult = document.getElementById("topple");
 const conquerTieBreakerResult = document.getElementById("conquer-tie-breaker");
 const meepleAutoma = document.getElementById("automa-meeple");
 const meepleShadowEmpire = document.getElementById("shadowempire-meeple");
+const currentCards = document.getElementById("currentcards");
+const progress = document.getElementById("progress");
+const era = document.getElementById("era");
+const discard = document.getElementById("discard");
 
 //game state
 let automaState = { 
@@ -92,13 +97,13 @@ let automaStateHandler = {
       target[prop] = value;
       switch(prop) {
             case "era":      
-                document.getElementById("era").innerHTML = value;
+                era.innerHTML = value;
                 break;
             case "hand":
-                document.getElementById("progress").innerHTML = value.length || 0;
+                progress.innerHTML = value.length || 0;
                 break;
             case "discard":
-                document.getElementById("discard").innerHTML = value.length || 0;
+                discard.innerHTML = value.length || 0;
                 break;
       }
       return true;
@@ -110,10 +115,11 @@ let proxyAutomaState = new Proxy(automaState, automaStateHandler);
 function updateAutomaStateUI() {
     document.getElementById("progress").innerHTML = proxyAutomaState.hand.length;
     document.getElementById("discard").innerHTML = proxyAutomaState.discard.length;
+    currentCards.innerHTML = proxyAutomaState.currentCards.length > 0 ? `Current Cards: ${proxyAutomaState.currentCards[0]} | ${proxyAutomaState.currentCards[1]}` : "";
 }
 
 function clearTurnResult() {
-    resultAutoma2.innerHTML = "<div class='col text-center'>Click <strong>Take Automa Turn</strong>.</div>";    
+    resultAutoma2.innerHTML = "<div class='col text-center'>Click <strong>Take Automa Turn</strong>.</div>";
 }
 
 const meeples = [
@@ -180,7 +186,10 @@ function createNewHandFromDiscard() {
 
 //is it time for the automa to take an income turn?
 function isIncomeTurn() {
-    var takeIncome = proxyAutomaState.hand.length === 0;
+    //if there are no cards left in the deck when we try to draw 
+    // OR if there are 2 cards left to draw but one of the current set shows Take Income
+    // then this is an income turn;
+    var takeIncome = proxyAutomaState.hand.length === 0 || (proxyAutomaState.hand.length === 2 && proxyAutomaState.currentCards[0].income);
 
     if (takeIncome) {
         gameMessage("The Automa takes an Income Action. Score the Automa and then click the <strong>Take Automa Income</strong> button to start the next era.");
@@ -203,7 +212,7 @@ function takeTurn() {
         const cardsToPlay = 2;
         for(let i = 0; i < cardsToPlay; i++) {
             let card = proxyAutomaState.hand.pop();
-            proxyAutomaState.currentCards.push(card);           
+            proxyAutomaState.currentCards.push(card);
         };
 
         //shuffle the two drawn cards so we lay them down randomly
@@ -218,7 +227,12 @@ function takeTurn() {
 }
 
 function confirmTakeIncome() {
-    $('#modalConfirmIncome').modal("show");
+    if (proxyAutomaState.era < 5) {
+        $('#modalConfirmIncome').modal("show");
+    }
+    else {
+        gameMessage("Automa has completed it's game");
+    }
 }
 
 function takeIncome() {
@@ -246,7 +260,7 @@ function takeIncome() {
     clearTurnResult();
     
     console.log("Take Income");
-    console.log(proxyAutomaState);    
+    console.log(proxyAutomaState);       
 }
 
 let modalMessage = $("#modalGameMessage")
@@ -311,11 +325,11 @@ async function displayAutomaResult(cards) {
                 
                 resultAutoma2.innerHTML = "";
                 let htmlOut = "";
-                if (rightcard.favorite > 0) htmlOut += `<img src="${IconFavorite}" alt="favorite" class="order-${rightcard.favorite}" />`;
-                if (rightcard.military > 0) htmlOut += `<img src="${IconMilitary}" alt="military" class="order-${rightcard.military}" />`;
-                if (rightcard.science > 0) htmlOut += `<img src="${IconScience}" alt="science" class="order-${rightcard.science}" />`;
-                if (rightcard.exploration > 0) htmlOut += `<img src="${IconExploration}" alt="exploration" class="order-${rightcard.exploration}" />`;
-                if (rightcard.technology > 0) htmlOut += `<img src="${IconTechnology}" alt="technology" class="order-${rightcard.technology}" />`;
+                if (rightcard.favorite > 0) htmlOut += `<img src="${IconFavorite}" alt="favorite" class="mx-2 order-${rightcard.favorite}" />`;
+                if (rightcard.military > 0) htmlOut += `<img src="${IconMilitary}" alt="military" class="mx-2 order-${rightcard.military}" />`;
+                if (rightcard.science > 0) htmlOut += `<img src="${IconScience}" alt="science" class="mx-2 order-${rightcard.science}" />`;
+                if (rightcard.exploration > 0) htmlOut += `<img src="${IconExploration}" alt="exploration" class="mx-2 order-${rightcard.exploration}" />`;
+                if (rightcard.technology > 0) htmlOut += `<img src="${IconTechnology}" alt="technology" class="mx-2 order-${rightcard.technology}" />`;
                 resultAutoma2.innerHTML = htmlOut;                           
 
                 incomeResult.style.display = leftcard.income ? "" : "none";
