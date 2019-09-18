@@ -30,7 +30,8 @@
       }
 
       body {
-        min-height:100vh;        
+        min-height:100vh;
+        background-color: #F8EECA;
       }
     </style>
 
@@ -56,7 +57,7 @@
               <button id="taketurn" type="button" class="btn btn-secondary btn-block"><i class="fas fa-arrow-circle-right"></i> Take Automa Turn</button>
             </div>
           </div>
-          <div class="row bg-warning my-1">           
+          <div class="row bg-warning my-2">           
             <div class="text-center col">Era: <span class="font-italic" id="era"></span></div> 
             <div class="text-center col">Progress: <span class="font-italic" id="progress"></span></div> 
             <div class="text-center col">Discard: <span class="font-italic" id="discard"></span></div>           
@@ -127,34 +128,43 @@
           <div id="currentcards" class="text-muted text-center py-5">
 
           </div>            
-    </div>
+      </div>      
+    </main>
+
+    <footer class="footer mt-auto text-center text-light bg-dark py-3">
+        <div class="container small">
+          <div class="text-muted">&mdash; Created by Sterling Heibeck. Inspired by Tapestry.</div>
+          <div class="text-muted">&mdash; Tapestry is created and owned by Stonemaier Games.</div>
+          <div class="text-muted">&mdash; This is not an official Stonemaier Games project.</div>
+        </div>
+    </footer>
 
     <!-- game messages -->
     <div id="modalGameMessage" class="modal" tabindex="-1" role="dialog">
-      <div class="modal-dialog model-sm" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Game Message</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>            
+        <div class="modal-dialog model-sm" role="document">
+          <div class="modal-content">
+            <div class="modal-header bg-dark">
+              <h5 class="modal-title text-light">Game Message</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>            
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- confirm -->
-    <div id="modalConfirmNewGame" class="modal" tabindex="-1" role="dialog">
+      <!-- confirm -->
+      <div id="modalConfirmNewGame" class="modal" tabindex="-1" role="dialog">
         <div class="modal-dialog model-sm" role="document">
           <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Confirm New Game</h5>
+            <div class="modal-header bg-dark">
+              <h5 class="modal-title text-light">Confirm New Game</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -173,8 +183,8 @@
       <div id="modalConfirmIncome" class="modal" tabindex="-1" role="dialog">
           <div class="modal-dialog model-sm" role="document">
             <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">Confirm Take Income</h5>
+              <div class="modal-header bg-dark">
+                <h5 class="modal-title text-light">Confirm Take Income</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>
@@ -188,16 +198,7 @@
               </div>
             </div>
           </div>
-        </div>
-    </main>
-
-    <footer class="footer mt-auto text-center bg-light py-3">
-        <div class="container small">
-          <div class="text-muted">&mdash; Created by Sterling Heibeck. Inspired by Tapestry.</div>
-          <div class="text-muted">&mdash; Tapestry is created and owned by Stonemaier Games.</div>
-          <div class="text-muted">&mdash; This is not an official Stonemaier Games project.</div>
-        </div>
-    </footer>
+      </div>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->

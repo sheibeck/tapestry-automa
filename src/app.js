@@ -120,6 +120,9 @@ function updateAutomaStateUI() {
 
 function clearTurnResult() {
     resultAutoma2.innerHTML = "<div class='col text-center'>Click <strong>Take Automa Turn</strong>.</div>";
+    toppleResult.style.display = "none";
+    incomeResult.style.display = "none";
+    conquerTieBreakerResult.style.display = "none";
 }
 
 const meeples = [
