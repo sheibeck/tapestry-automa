@@ -62,6 +62,7 @@ let automaState = {
     discard: [],
     hand: [],
     currentCards: [],
+    gamestarted: false,
 };
 
 //get the card data from dynamodb
@@ -116,6 +117,10 @@ let automaStateHandler = {
             case "discard":
                 discard.innerHTML = value.length || 0;
                 break;
+            case "gamestarted":
+                document.getElementById('taketurn').disabled = !value;
+                document.getElementById('takeincome').disabled = !value;
+                break;
       }
       return true;
     }
@@ -152,6 +157,8 @@ function colorPicker() {
 }
 
 function startGame() {  
+    proxyAutomaState.gamestarted = true;
+
     //choose colors for bots
     meepleAutoma.src = colorPicker();
     meepleShadowEmpire.src = colorPicker();
@@ -196,7 +203,14 @@ function addToHand(numCards) {
 }
 
 /// put the discard pile back into the 
-function createNewHandFromDiscard() {         
+function createNewHandFromDiscard() {
+
+    //discard our current cards
+    while(proxyAutomaState.currentCards.length > 0) {
+        let card = proxyAutomaState.currentCards.pop();
+        proxyAutomaState.discard.push(card);
+    };
+
     while(proxyAutomaState.discard.length > 0) {
         let card = proxyAutomaState.discard.pop();
         proxyAutomaState.hand.push(card);
@@ -208,7 +222,10 @@ function isIncomeTurn() {
     //if there are no cards left in the deck when we try to draw 
     // OR if there are 2 cards left to draw but one of the current set shows Take Income
     // then this is an income turn;
-    var takeIncome = proxyAutomaState.hand.length === 0 || (proxyAutomaState.hand.length === 2 && proxyAutomaState.currentCards[0].income);
+    let leftcard = cardData.find(item => {
+        return item.id == proxyAutomaState.currentCards[0];
+    });
+    var takeIncome = proxyAutomaState.hand.length === 0 || (proxyAutomaState.hand.length === 2 && leftcard.income);
 
     if (takeIncome) {
         gameMessage("The Automa takes an Income Action. Score the Automa and then click the <strong>Take Automa Income</strong> button to start the next era.");
@@ -264,7 +281,7 @@ function takeIncome() {
         let card = proxyAutomaState.hand.pop();
         proxyAutomaState.discard.push(card);
     }    
-
+    
     //put the discard pile back into the hand and add 2 cards
     createNewHandFromDiscard();
 
@@ -312,12 +329,13 @@ function confirmNewGame() {
 }
 
 function doConfirmNewGame() {
+    proxyAutomaState.gamestarted = false;
     viewsetup.style.display = "";
     viewcards.style.display = "none";
     era.innerHTML = "&mdash;";
     progress.innerHTML = "&mdash;";
     discard.innerHTML = "&mdash;";
-    clearTurnResult();    
+    clearTurnResult();
 }
 
 async function displayAutomaResult(cards) {
