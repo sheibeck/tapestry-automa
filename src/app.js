@@ -12,13 +12,24 @@ import IconScience from "./assets/images/science.png";
 import IconTechnology from "./assets/images/technology.png";
 import IconIncome from "./assets/images/income.png";
 import IconTopple from "./assets/images/topple.png";
-import IconConquerTieBreakerNW from "./assets/images/tie-breaker-nw.png";
 import IconLeftArrow from "./assets/images/left-arrow.png";
 import IconRightArrow from "./assets/images/right-arrow.png";
 import IconFlag from "./assets/images/flag.png";
 import IconHouse from "./assets/images/house.png";
 import IconSquare from "./assets/images/square.png";
 import IconBanner from "./assets/images/banner.png";
+
+//conquer tie-breakers
+import IconConquerTieBreakerENW from "./assets/images/conquer-tiebreaker-e-nw.png";
+import IconConquerTieBreakerESW from "./assets/images/conquer-tiebreaker-e-sw.png";
+import IconConquerTieBreakerNES from "./assets/images/conquer-tiebreaker-ne-s.png";
+import IconConquerTieBreakerNSE from "./assets/images/conquer-tiebreaker-n-se.png";
+import IconConquerTieBreakerNWS from "./assets/images/conquer-tiebreaker-nw-s.png";
+import IconConquerTieBreakerSEN from "./assets/images/conquer-tiebreaker-se-n.png";
+import IconConquerTieBreakerSNE from "./assets/images/conquer-tiebreaker-s-ne.png";
+import IconConquerTieBreakerSNW from "./assets/images/conquer-tiebreaker-s-nw.png";
+import IconConquerTieBreakerSWN from "./assets/images/conquer-tiebreaker-sw-n.png";
+import IconConquerTieBreakerWSE from "./assets/images/conquer-tiebreaker-w-se.png";
 
 //meeples
 import MeepleBlue from "./assets/images/meeple-blue.png";
@@ -36,7 +47,7 @@ const resultAutoma2 = document.getElementById("automaResult2");
 const resultShadowEmpire = document.getElementById("shadowEmpireResult");
 const incomeResult = document.getElementById("income");
 const toppleResult = document.getElementById("topple");
-const conquerTieBreakerResult = document.getElementById("conquer-tie-breaker");
+const conquerTieBreakerResult = document.getElementById("conquer-tiebreaker");
 const meepleAutoma = document.getElementById("automa-meeple");
 const meepleShadowEmpire = document.getElementById("shadowempire-meeple");
 const currentCards = document.getElementById("currentcards");
@@ -57,8 +68,8 @@ let automaState = {
 export let cardData = null;
 async function getCardData(cardNum, position) {
     console.log("Get Card Data");
-    API.graphql(graphqlOperation(listAutomaCards)).then((evt) => {
-        cardData = evt.data.listAutomaCards;
+    API.graphql(graphqlOperation(listAutomaCards, {limit: 100})).then((evt) => {
+        cardData = evt.data.listAutomaCards.items;
     });
 }
 getCardData();
@@ -154,6 +165,8 @@ function startGame() {
 
     // clear the discard pile
     proxyAutomaState.discard = [];
+    // clear any current cards
+    proxyAutomaState.currentCards = [];
 
     //add one card to the automa hand to make it an even 8
     addToHand(1);    
@@ -311,12 +324,12 @@ async function displayAutomaResult(cards) {
     console.log("Display Automa Result");   
 
     //get the left card details
-    let leftcard = cardData.items.find(item => {
+    let leftcard = cardData.find(item => {
         return item.id == cards[0];
     });
 
     //get the right card details
-    let rightcard = cardData.items.find(item => {
+    let rightcard = cardData.find(item => {
         return item.id == cards[1];
     });
 
@@ -326,9 +339,9 @@ async function displayAutomaResult(cards) {
         
         switch (position)
         {
-            case 0:               
-                resultAutoma1.innerHTML = `<img src="${IconHouse}" class="track-icon" /> Furthest track with an available building`;
-                resultShadowEmpire.innerHTML = `<img src="${IconSquare}" class="track-icon" /> Any track where it has not reached the end`;
+            case 0:
+                resultAutoma1.innerHTML = getTrackImage(leftcard.automatrack);
+                resultShadowEmpire.innerHTML = getTrackImage(leftcard.shadowtrack);
                 break;
 
             default:
@@ -345,7 +358,21 @@ async function displayAutomaResult(cards) {
                 incomeResult.style.display = leftcard.income ? "" : "none";
                 toppleResult.style.display = rightcard.topple ? "" : "none";
                 conquerTieBreakerResult.style.display = "";
-                conquerTieBreakerResult.src = IconConquerTieBreakerNW;
+                conquerTieBreakerResult.src = `images/conquer-tiebreaker-${rightcard.conquertiebreaker}.png`;
         }
     }    
+
+    function getTrackImage(type) {
+        switch (type) {
+            case "any":
+                return `<img src="${IconSquare}" class="track-icon" /> All non-finished tracks`;
+                break;
+            case "finish":
+                    return `<img src="${IconFlag}" class="track-icon" /> Non-finished, closest to end`;
+                break;
+            case "landmark":
+                return `<img src="${IconHouse}" class="track-icon" /> Non-finished tracks, closest to landmark/end`;
+                break;
+        }
+    }
 }

@@ -11,6 +11,9 @@ export const getAutomaCard = `query GetAutomaCard($id: ID!) {
     technology
     topple
     income
+    conquertiebreaker
+    automatrack
+    shadowtrack
   }
 }
 `;
@@ -29,6 +32,9 @@ export const listAutomaCards = `query ListAutomaCards(
       technology
       topple
       income
+      conquertiebreaker
+      automatrack
+      shadowtrack
     }
     nextToken
   }

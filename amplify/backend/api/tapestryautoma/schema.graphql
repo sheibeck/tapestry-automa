@@ -7,4 +7,7 @@ type AutomaCard @model {
   technology: Int
   topple: Boolean
   income: Boolean
+  conquertiebreaker: String
+  automatrack: String
+  shadowtrack: String
 }

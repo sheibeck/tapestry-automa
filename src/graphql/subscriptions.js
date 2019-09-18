@@ -11,6 +11,9 @@ export const onCreateAutomaCard = `subscription OnCreateAutomaCard {
     technology
     topple
     income
+    conquertiebreaker
+    automatrack
+    shadowtrack
   }
 }
 `;
@@ -24,6 +27,9 @@ export const onUpdateAutomaCard = `subscription OnUpdateAutomaCard {
     technology
     topple
     income
+    conquertiebreaker
+    automatrack
+    shadowtrack
   }
 }
 `;
@@ -37,6 +43,9 @@ export const onDeleteAutomaCard = `subscription OnDeleteAutomaCard {
     technology
     topple
     income
+    conquertiebreaker
+    automatrack
+    shadowtrack
   }
 }
 `;

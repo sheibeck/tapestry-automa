@@ -11,6 +11,9 @@ export const createAutomaCard = `mutation CreateAutomaCard($input: CreateAutomaC
     technology
     topple
     income
+    conquertiebreaker
+    automatrack
+    shadowtrack
   }
 }
 `;
@@ -24,6 +27,9 @@ export const updateAutomaCard = `mutation UpdateAutomaCard($input: UpdateAutomaC
     technology
     topple
     income
+    conquertiebreaker
+    automatrack
+    shadowtrack
   }
 }
 `;
@@ -37,6 +43,9 @@ export const deleteAutomaCard = `mutation DeleteAutomaCard($input: DeleteAutomaC
     technology
     topple
     income
+    conquertiebreaker
+    automatrack
+    shadowtrack
   }
 }
 `;
