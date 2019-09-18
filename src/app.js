@@ -1,3 +1,10 @@
+//initialize sentry so we can see any errors
+import * as Sentry from '@sentry/browser';
+Sentry.init({
+    dsn: 'https://4ab621601e4c4b5da68ad015be899b4d@sentry.io/1731084',
+    environment: process.env.NODE_ENV,
+});
+
 import API, { graphqlOperation } from '@aws-amplify/api'
 import PubSub from '@aws-amplify/pubsub';
 import awsconfig from './aws-exports';
