@@ -131,7 +131,7 @@ let proxyAutomaState = new Proxy(automaState, automaStateHandler);
 function updateAutomaStateUI() {
     document.getElementById("progress").innerHTML = proxyAutomaState.hand.length;
     document.getElementById("discard").innerHTML = proxyAutomaState.discard.length;
-    currentCards.innerHTML = proxyAutomaState.currentCards.length > 0 ? `Current Cards: ${proxyAutomaState.currentCards[0]} | ${proxyAutomaState.currentCards[1]}` : "";
+    currentCards.innerHTML = proxyAutomaState.currentCards.length > 0 ? `${proxyAutomaState.currentCards[0]}|${proxyAutomaState.currentCards[1]}` : "&mdash;";
 }
 
 function clearTurnResult() {
@@ -141,7 +141,7 @@ function clearTurnResult() {
     toppleResult.style.display = "none";
     incomeResult.style.display = "none";
     conquerTieBreakerResult.style.display = "none";
-    currentCards.innerHTML = "";
+    currentCards.innerHTML = "&mdash;";
 }
 
 const meeples = [
