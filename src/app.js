@@ -63,24 +63,30 @@ const era = document.getElementById("era");
 const discard = document.getElementById("discard");
 
 //game state
-let automaState = { 
+export let automaState = { 
     era: 0,
     deck: [8,9,10,11,12,13,14,15,16,17,18,19,20,21,22],
     discard: [],
     hand: [],
     currentCards: [],
-    gamestarted: false,
+    gameStarted: false,
+    isIncomeTurn: false,
 };
 
 //get the card data from dynamodb
 export let cardData = null;
-async function getCardData(cardNum, position) {
-    console.log("Get Card Data");
+async function getCardData(cardNum, position) {    
     API.graphql(graphqlOperation(listAutomaCards, {limit: 100})).then((evt) => {
         cardData = evt.data.listAutomaCards.items;
     });
 }
 getCardData();
+
+let modalMessage = $("#modalGameMessage")
+function gameMessage(message) {
+    $(".modal-body", modalMessage).html(message);
+    modalMessage.modal('show');
+}
 
 //events
 document.getElementById('newgame').addEventListener('click', ()=>{
@@ -100,11 +106,11 @@ document.getElementById('takeincome').addEventListener('click', ()=>{
 });
 
 document.getElementById('takeIncomeYes').addEventListener('click', ()=>{
-  takeIncome();  
+  takeIncomeTurn();  
 });
 
 document.getElementById('taketurn').addEventListener('click', ()=>{
-  takeTurn();  
+    takeAutomaTurn();  
 });
 
 //methods
@@ -124,9 +130,11 @@ let automaStateHandler = {
             case "discard":
                 discard.innerHTML = value.length || 0;
                 break;
-            case "gamestarted":
+            case "gameStarted":
                 document.getElementById('taketurn').disabled = !value;
-                document.getElementById('takeincome').disabled = !value;
+                document.getElementById('takeincome').disabled = value;
+                break;
+            case "isIncomeTurn":                
                 break;
       }
       return true;
@@ -163,12 +171,15 @@ function colorPicker() {
     return meeples.splice(parseInt(Math.random() * meeples.length), 1)[0];
 }
 
-function startGame() {  
-    proxyAutomaState.gamestarted = true;
+function startGame() { 
+    console.log("NEW GAME");
+
+    proxyAutomaState.gameStarted = true;
+    proxyAutomaState.isIncomeTurn = false;
 
     //choose colors for bots
-    meepleAutoma.src = colorPicker();
-    meepleShadowEmpire.src = colorPicker();
+    meepleAutoma.src = MeepleRed;
+    meepleShadowEmpire.src = MeepleGrey;
 
     //starting hand is cards 1 through 7
     proxyAutomaState.hand = [1,2,3,4,5,6,7];
@@ -196,11 +207,8 @@ function startGame() {
 
     viewsetup.style.display = "none";
     viewcards.style.display = "";
-
-    console.log("New Game");
-    console.log(proxyAutomaState);   
-    
-    gameMessage("Resolve an Income Turn for the Automa as it's first turn.<br/><small class='text-muted'>The Automa taks an income turn on it's first turn just as a player would. Then the Automa will advance to Era 2.</small>");
+        
+    gameMessage("Resolve an Income Turn for the Automa as it's first turn.<br/><small class='text-muted'>The Automa takes an income turn on it's first turn just as a player would. Then the Automa will advance to Era 2.</small>");
 }
 
 // add cards to hand
@@ -227,47 +235,69 @@ function createNewHandFromDiscard() {
 }
 
 //is it time for the automa to take an income turn?
-function isIncomeTurn() {
-    //if there are no cards left in the deck when we try to draw 
-    // OR if there are 2 cards left to draw but one of the current set shows Take Income
-    // then this is an income turn;
-    let leftcard = cardData.find(item => {
+function checkForEarlyIncomeTurn() {     
+    // get the left card so we can see if it has the income symbol
+    let leftcardcheck = cardData.find(item => {
         return item.id == proxyAutomaState.currentCards[0];
-    });
-    var takeIncome = proxyAutomaState.hand.length === 0 || (proxyAutomaState.hand.length === 2 && leftcard.income);
+    });   
 
-    if (takeIncome) {
-        gameMessage("The Automa takes an <strong>Income Turn</strong>. Score the Automa and then click the <strong>Take Automa Income</strong> button to start the next era.");
+    //If the decision deck is now empty and the track card has an income icon, the
+    // bots take their income turn and you skip the last step of this procedure.
+    if (proxyAutomaState.hand.length == 0 && leftcardcheck.income == true) {               
+        console.log("  TAKE EARLY INCOME");
+        proxyAutomaState.isIncomeTurn = true;
+        document.getElementById('taketurn').disabled = true;
+        document.getElementById('takeincome').disabled = false;
+                
+        gameMessage("The Automa takes an <strong>Early Income Turn</strong>. Score the Automa and then click the <strong>Take Automa Income</strong> button to start the next era.");    
     }
-
-    return takeIncome;
 }
 
-function takeTurn() {
-    if (!isIncomeTurn()) {
-        
-        //move the current cards into the discard pile        
-        while(proxyAutomaState.currentCards.length > 0)
-        {
-            let card = proxyAutomaState.currentCards.pop();
-            proxyAutomaState.discard.push(card);
-        };
+function discardPlayedCards() {
+    //move the current cards into the discard pile        
+    while(proxyAutomaState.currentCards.length > 0)
+    {
+        let card = proxyAutomaState.currentCards.pop();
+        proxyAutomaState.discard.push(card);
+    };    
+}
 
-        //play 2 new cards
-        const cardsToPlay = 2;
-        for(let i = 0; i < cardsToPlay; i++) {
-            let card = proxyAutomaState.hand.pop();
-            proxyAutomaState.currentCards.push(card);
-        };
+function drawCards(numCards) {
+    for(let i = 0; i < numCards; i++) {
+        let card = proxyAutomaState.hand.pop();
+        proxyAutomaState.currentCards.push(card);
+    };
+}
+
+function takeAutomaTurn() {
+    console.log("TAKE TURN");
+
+    console.log(" DISCARD");
+    discardPlayedCards();
+    
+    //if we have no cards left to draw, this is a regular income turn
+    if (proxyAutomaState.hand.length == 0) {
+        console.log(" NO CARDS LEFT - INCOME TURN");
+        proxyAutomaState.isIncomeTurn = true;
+        clearTurnResult();
+        updateAutomaStateUI();
+
+        gameMessage("The Automa takes an <strong>Income Turn</strong>. Score the Automa and then click the <strong>Take Automa Income</strong> button to start the next era."); 
+        document.getElementById('taketurn').disabled = true;
+        document.getElementById('takeincome').disabled = false;
+    }
+    else {
+        console.log(" DRAW 2 CARDS");
+        drawCards(2);
 
         //shuffle the two drawn cards so we lay them down randomly
         shuffle(proxyAutomaState.currentCards);
-        displayAutomaResult(proxyAutomaState.currentCards);
+        displayAutomaResult(proxyAutomaState.currentCards);        
 
-        updateAutomaStateUI();
+        //we can have an early income turn
+        checkForEarlyIncomeTurn();
 
-        console.log("Take Turn");
-        console.log(proxyAutomaState);    
+        console.log(proxyAutomaState);
     }
 }
 
@@ -280,16 +310,10 @@ function confirmTakeIncome() {
     }
 }
 
-function takeIncome() {
-    //increase the automa to the next era
-    proxyAutomaState.era++;
+function takeIncomeTurn() {
+    console.log("TAKE INCOME");
 
-    //discard the remaining cards if any exist. The automa can sometimes
-    //take an income action before its hand is fully empty
-    while (proxyAutomaState.hand.length > 0) {
-        let card = proxyAutomaState.hand.pop();
-        proxyAutomaState.discard.push(card);
-    }    
+    discardPlayedCards();
     
     //put the discard pile back into the hand and add 2 cards
     createNewHandFromDiscard();
@@ -300,18 +324,17 @@ function takeIncome() {
     //shuffle the new deck
     shuffle(proxyAutomaState.hand);        
 
-    updateAutomaStateUI();
+    //increase the automa to the next era
+    proxyAutomaState.era++;
 
     clearTurnResult();
-    
-    console.log("Take Income");
-    console.log(proxyAutomaState);       
-}
+    updateAutomaStateUI();
 
-let modalMessage = $("#modalGameMessage")
-function gameMessage(message) {
-    $(".modal-body", modalMessage).html(message);
-    modalMessage.modal('show');
+    //reset the app state so we know we are no longer in an income turn
+    proxyAutomaState.isIncomeTurn = false;
+
+    document.getElementById('taketurn').disabled = false;
+    document.getElementById('takeincome').disabled = true;
 }
 
 function shuffle(array) {   
@@ -338,17 +361,22 @@ function confirmNewGame() {
 }
 
 function doConfirmNewGame() {
-    proxyAutomaState.gamestarted = false;
+    proxyAutomaState.gameStarted = false;
     viewsetup.style.display = "";
     viewcards.style.display = "none";
     era.innerHTML = "&mdash;";
     progress.innerHTML = "&mdash;";
     discard.innerHTML = "&mdash;";
+
     clearTurnResult();
+
+    document.getElementById('taketurn').disabled = true;
+    document.getElementById('takeincome').disabled = true;
 }
 
 async function displayAutomaResult(cards) {
-    console.log("Display Automa Result");   
+    //clear the last result
+    clearTurnResult();
 
     //get the left card details
     let leftcard = cardData.find(item => {
@@ -402,4 +430,6 @@ async function displayAutomaResult(cards) {
                 break;
         }
     }
+
+    updateAutomaStateUI();
 }
