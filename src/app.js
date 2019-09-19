@@ -188,9 +188,9 @@ function startGame() {
     //shuffle the hand
     shuffle(proxyAutomaState.hand);
 
-    //set the era
-    proxyAutomaState.era = 1;
-
+    //set the era - the automa takes an income action as it's first turn. So, technically
+    // they will "start" in era 2 after taking income.
+    proxyAutomaState.era = 2;
     updateAutomaStateUI();
     clearTurnResult();
 
@@ -198,7 +198,9 @@ function startGame() {
     viewcards.style.display = "";
 
     console.log("New Game");
-    console.log(proxyAutomaState);    
+    console.log(proxyAutomaState);   
+    
+    gameMessage("Resolve an Income Turn for the Automa as it's first turn.<br/><small class='text-muted'>The Automa taks an income turn on it's first turn just as a player would. Then the Automa will advance to Era 2.</small>");
 }
 
 // add cards to hand
@@ -235,7 +237,7 @@ function isIncomeTurn() {
     var takeIncome = proxyAutomaState.hand.length === 0 || (proxyAutomaState.hand.length === 2 && leftcard.income);
 
     if (takeIncome) {
-        gameMessage("The Automa takes an Income Action. Score the Automa and then click the <strong>Take Automa Income</strong> button to start the next era.");
+        gameMessage("The Automa takes an <strong>Income Turn</strong>. Score the Automa and then click the <strong>Take Automa Income</strong> button to start the next era.");
     }
 
     return takeIncome;
