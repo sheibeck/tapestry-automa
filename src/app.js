@@ -43,7 +43,7 @@ import MeepleBlue from "./assets/images/meeple-blue.png";
 import MeepleYellow from "./assets/images/meeple-yellow.png";
 import MeepleGreen from "./assets/images/meeple-green.png";
 import MeepleRed from "./assets/images/meeple-red.png";
-import MeepleOrange from "./assets/images/meeple-orange.png";
+import MeepleGrey from "./assets/images/meeple-grey.png";
 
 
 //vars
@@ -156,7 +156,7 @@ const meeples = [
     MeepleRed,
     MeepleYellow,
     MeepleGreen,
-    MeepleOrange,
+    MeepleGrey,
   ];
       
 function colorPicker() {    
