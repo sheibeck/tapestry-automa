@@ -61,6 +61,8 @@ const currentCards = document.getElementById("currentcards");
 const progress = document.getElementById("progress");
 const era = document.getElementById("era");
 const discard = document.getElementById("discard");
+const btnTakeTurn = document.getElementById('taketurn');
+const btnConfirmTakeIncome = document.getElementById('takeincome');
 
 //game state
 export let automaState = { 
@@ -71,6 +73,13 @@ export let automaState = {
     currentCards: [],
     gameStarted: false,
     isIncomeTurn: false,
+    gameReview: {
+        era1: [],
+        era2: [],
+        era3: [],
+        era4: [],
+        era5: []
+    }
 };
 
 //get the card data from dynamodb
@@ -94,22 +103,22 @@ document.getElementById('newgame').addEventListener('click', ()=>{
 });
 
 document.getElementById('newGameYes').addEventListener('click', ()=>{
-  doConfirmNewGame();
+  setupNewGame();
 });
 
 document.getElementById('startgame').addEventListener('click', ()=>{
   startGame();
 });
 
-document.getElementById('takeincome').addEventListener('click', ()=>{
+document.getElementById('takeIncomeYes').addEventListener('click', ()=>{
+    takeIncomeTurn();  
+});
+
+btnConfirmTakeIncome.addEventListener('click', ()=>{
   confirmTakeIncome();  
 });
 
-document.getElementById('takeIncomeYes').addEventListener('click', ()=>{
-  takeIncomeTurn();  
-});
-
-document.getElementById('taketurn').addEventListener('click', ()=>{
+btnTakeTurn.addEventListener('click', ()=>{
     takeAutomaTurn();  
 });
 
@@ -131,10 +140,12 @@ let automaStateHandler = {
                 discard.innerHTML = value.length || 0;
                 break;
             case "gameStarted":
-                document.getElementById('taketurn').disabled = !value;
-                document.getElementById('takeincome').disabled = value;
+                btnTakeTurn.disabled = !value;
+                btnConfirmTakeIncome.disabled = value;
                 break;
-            case "isIncomeTurn":                
+            case "isIncomeTurn":
+                btnTakeTurn.disabled = value;
+                btnConfirmTakeIncome.disabled = !value;
                 break;
       }
       return true;
@@ -150,7 +161,7 @@ function updateAutomaStateUI() {
 }
 
 function clearTurnResult() {
-    resultAutoma2.innerHTML = "<div class='col text-center'>Click <strong>Take Automa Turn</strong>.</div>";
+    resultAutoma2.innerHTML = "<div class='col text-center'>&mdash;</div>";
     resultAutoma1.innerHTML = "";
     resultShadowEmpire.innerHTML = "";
     toppleResult.style.display = "none";
@@ -190,8 +201,18 @@ function startGame() {
 
     // clear the discard pile
     proxyAutomaState.discard = [];
+    
     // clear any current cards
     proxyAutomaState.currentCards = [];
+
+    // clear the last game review 
+    proxyAutomaState.gameReview = {
+        era1: [],
+        era2: [],
+        era3: [],
+        era4: [],
+        era5: []
+    };
 
     //add one card to the automa hand to make it an even 8
     addToHand(1);    
@@ -246,8 +267,8 @@ function checkForEarlyIncomeTurn() {
     if (proxyAutomaState.hand.length == 0 && leftcardcheck.income == true) {               
         console.log("  TAKE EARLY INCOME");
         proxyAutomaState.isIncomeTurn = true;
-        document.getElementById('taketurn').disabled = true;
-        document.getElementById('takeincome').disabled = false;
+        btnTakeTurn.disabled = true;
+        btnConfirmTakeIncome.disabled = false;
                 
         gameMessage("The Automa takes an <strong>Early Income Turn</strong>. Score the Automa and then click the <strong>Take Automa Income</strong> button to start the next era.");    
     }
@@ -259,6 +280,23 @@ function discardPlayedCards() {
     {
         let card = proxyAutomaState.currentCards.pop();
         proxyAutomaState.discard.push(card);
+
+        //update the game overview so we can see exactly which
+        //cards were play in which order for each era
+        switch(proxyAutomaState.era) {
+            case 2:
+                proxyAutomaState.gameReview.era2.push(card);
+                break;
+            case 3:
+                proxyAutomaState.gameReview.era3.push(card);
+                break;
+            case 4:
+                proxyAutomaState.gameReview.era4.push(card);
+                break;
+            case 5:
+                proxyAutomaState.gameReview.era5.push(card);
+                break;
+        }
     };    
 }
 
@@ -283,8 +321,8 @@ function takeAutomaTurn() {
         updateAutomaStateUI();
 
         gameMessage("The Automa takes an <strong>Income Turn</strong>. Score the Automa and then click the <strong>Take Automa Income</strong> button to start the next era."); 
-        document.getElementById('taketurn').disabled = true;
-        document.getElementById('takeincome').disabled = false;
+        btnTakeTurn.disabled = true;
+        btnConfirmTakeIncome.disabled = false;
     }
     else {
         console.log(" DRAW 2 CARDS");
@@ -305,8 +343,15 @@ function confirmTakeIncome() {
     if (proxyAutomaState.era < 5) {
         $('#modalConfirmIncome').modal("show");
     }
-    else {
+    else {    
+        discardPlayedCards();
+        clearTurnResult();
+        updateAutomaStateUI();  
+        resultAutoma2.innerHTML = "<div class='col text-center'>It's <em>game over</em> for the Automa!</div>";
         gameMessage("Automa has completed it's game");
+
+        btnTakeTurn.disabled = true;
+        btnConfirmTakeIncome.disabled = true;
     }
 }
 
@@ -333,8 +378,8 @@ function takeIncomeTurn() {
     //reset the app state so we know we are no longer in an income turn
     proxyAutomaState.isIncomeTurn = false;
 
-    document.getElementById('taketurn').disabled = false;
-    document.getElementById('takeincome').disabled = true;
+    btnTakeTurn.disabled = false;
+    btnConfirmTakeIncome.disabled = true;
 }
 
 function shuffle(array) {   
@@ -360,7 +405,7 @@ function confirmNewGame() {
     $('#modalConfirmNewGame').modal("show");
 }
 
-function doConfirmNewGame() {
+function setupNewGame() {
     proxyAutomaState.gameStarted = false;
     viewsetup.style.display = "";
     viewcards.style.display = "none";
@@ -370,8 +415,8 @@ function doConfirmNewGame() {
 
     clearTurnResult();
 
-    document.getElementById('taketurn').disabled = true;
-    document.getElementById('takeincome').disabled = true;
+    btnTakeTurn.disabled = true;
+    btnConfirmTakeIncome.disabled = true;
 }
 
 async function displayAutomaResult(cards) {
