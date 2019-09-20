@@ -16,6 +16,7 @@ PubSub.configure(awsconfig);
 import { listAutomaCards } from './graphql/queries';
 import * as asset from "./assets.js"
 import * as dom from "./elems.js";
+import * as templates from "./templates.js";
 
 //-------------------------------
 // LOAD CARD DATA
@@ -152,7 +153,7 @@ function checkForEarlyIncomeTurn() {
 }
 
 function discardPlayedCards() {
-    //move the current cards into the discard pile        
+    //move the current cards into the discard pile
     while(proxyAutomaState.currentCards.length > 0)
     {
         let card = proxyAutomaState.currentCards.pop();
@@ -212,7 +213,7 @@ function getCardDetails(id) {
     return card;
 }
 
-function displayAutomaResult(cards) {
+function displayAutomaResult(cards) {    
     //clear the last result
     clearTurnResult();
 
@@ -251,23 +252,24 @@ function displayAutomaResult(cards) {
     updateAutomaStateUI();
 }
 
-function getTrackImage(type) {
+//-------------------------------
+//PUBLIC METHODS
+//-------------------------------
+
+export function getTrackImage(type, hideText) {
     switch (type) {
         case "any":
-            return `<img src="${asset.IconSquare}" class="track-icon" /> All non-finished tracks`;
+            return `<img src="${asset.IconSquare}" class="track-icon" />${hideText ? "" : " All non-finished tracks"}`;
             break;
         case "finish":
-                return `<img src="${asset.IconFlag}" class="track-icon" /> Non-finished, closest to end`;
+                return `<img src="${asset.IconFlag}" class="track-icon" />${hideText ? "" : " Non-finished, closest to end"}`;
             break;
         case "landmark":
-            return `<img src="${asset.IconHouse}" class="track-icon" /> Non-finished tracks, closest to landmark/end`;
+            return `<img src="${asset.IconHouse}" class="track-icon" />${hideText ? "" : " Non-finished tracks, closest to landmark/end"}`;
             break;
     }
 }
 
-//-------------------------------
-//PUBLIC METHODS
-//-------------------------------
 export function startGame() { 
     console.log("NEW GAME");
 
@@ -361,7 +363,7 @@ export function confirmTakeIncome() {
         dom.setElementHtml(dom.resultAutoma2, `<div class='col text-center'>It's <em>game over</em> for the Automa!</div>`);
         gameMessage("Automa has completed its game");
 
-        dom.disableElement(elems.btnTakeTurn, true);                
+        dom.disableElement(dom.btnTakeTurn, true);                
         dom.disableElement(dom.btnConfirmTakeIncome, false);
     }
 }
@@ -412,29 +414,17 @@ export function setupNewGame() {
 
 export function showDiscardPile() {
     let message = `<div>Here is the current state of the discard pile: <br />`;
-    
-    var count = 0;
-    proxyAutomaState.discard.forEach(element => {
-        count++; //try to organize the card pairs
-        let cardDetails = getCardDetails(element); 
-        if (count == 1) message += `<div class="row flex-row-reverse mt-1">`;
-        message += `<div class="card small bg-light col-6 order-1"><div class="card-body">
-        <h5 class="card-title m-0">Card #${cardDetails.id}</h5>`;
-        for (let key in cardDetails) {
-            if (cardDetails.hasOwnProperty(key) && key !== "id") {
-                message += `<p class="card-text m-0">${key}: ${cardDetails[key]}</p>`;
-            }
-        }
-        message += `</div></div>`;
+           
+    for (let count = 0; count < proxyAutomaState.discard.length; count++) {
 
-        if (count==2) {
-            count = 0;
-            message += `</div>`
-        }
-    });
+        //get the card pair
+        let leftCard = getCardDetails(proxyAutomaState.discard[count]);
+        count++; 
+        let rightCard = getCardDetails(proxyAutomaState.discard[count]);
 
+        message += templates.formatCardLogPair(leftCard, rightCard);
+    };
     message += "</div>"
-
     gameMessage(message);
 }
 
@@ -442,29 +432,16 @@ export function showGameReview() {
     let message = `<div>Here is a review of the current state of the game: <br />`;    
 
     for (let era in proxyAutomaState.gameReview) {
-        message += `<h4>${era.toUpperCase()}</h4>`;
+        message += `<h4>${era.toUpperCase()}</h4>`;        
+        for (let count = 0; count < proxyAutomaState.gameReview[era].length; count++) {
 
-        var count = 0;
-        proxyAutomaState.gameReview[era].forEach(element => {
-            count++; //try to organize the card pairs
-            let cardDetails = getCardDetails(element);
-            
-            if (count == 1) message += `<div class="row flex-row-reverse mt-1">`;
-            message += `<div class="card small bg-light col-6 order-${count}"><div class="card-body">
-            <h5 class="card-title m-0">Card #${cardDetails.id}</h5>`;
-            
-            for (let key in cardDetails) {                
-                if (cardDetails.hasOwnProperty(key) && key !== "id") {
-                    message += `<p class="card-text m-0">${key}: ${cardDetails[key]}</p>`;
-                };               
-            }
-            message += `</div></div>`;
+            //get the card pair
+            let leftCard = getCardDetails(proxyAutomaState.gameReview[era][count]);
+            count++; 
+            let rightCard = getCardDetails(proxyAutomaState.gameReview[era][count]);
 
-            if (count==2) {
-                count = 0;
-                message += `</div>`
-            }
-        })
+            message += templates.formatCardLogPair(leftCard, rightCard);
+        };
     };
     message += "</div>"
 
