@@ -5,68 +5,34 @@ Sentry.init({
     environment: process.env.NODE_ENV,
 });
 
+//-------------------------------
+// IMPORTS
+//-------------------------------
 import API, { graphqlOperation } from '@aws-amplify/api'
 import PubSub from '@aws-amplify/pubsub';
 import awsconfig from './aws-exports';
 API.configure(awsconfig);
 PubSub.configure(awsconfig);
 import { listAutomaCards } from './graphql/queries';
+import * as asset from "./assets.js"
+import * as dom from "./elems.js";
 
-import IconFavorite from "./assets/images/favorite.png";
-import IconMilitary from "./assets/images/military.png";
-import IconExploration from "./assets/images/exploration.png";
-import IconScience from "./assets/images/science.png";
-import IconTechnology from "./assets/images/technology.png";
-import IconIncome from "./assets/images/income.png";
-import IconTopple from "./assets/images/topple.png";
-import IconLeftArrow from "./assets/images/left-arrow.png";
-import IconRightArrow from "./assets/images/right-arrow.png";
-import IconFlag from "./assets/images/flag.png";
-import IconHouse from "./assets/images/house.png";
-import IconSquare from "./assets/images/square.png";
-import IconBanner from "./assets/images/banner.png";
-
-//conquer tie-breakers
-import IconConquerTieBreakerENW from "./assets/images/conquer-tiebreaker-e-nw.png";
-import IconConquerTieBreakerESW from "./assets/images/conquer-tiebreaker-e-sw.png";
-import IconConquerTieBreakerNES from "./assets/images/conquer-tiebreaker-ne-s.png";
-import IconConquerTieBreakerNSE from "./assets/images/conquer-tiebreaker-n-se.png";
-import IconConquerTieBreakerNWS from "./assets/images/conquer-tiebreaker-nw-s.png";
-import IconConquerTieBreakerSEN from "./assets/images/conquer-tiebreaker-se-n.png";
-import IconConquerTieBreakerSNE from "./assets/images/conquer-tiebreaker-s-ne.png";
-import IconConquerTieBreakerSNW from "./assets/images/conquer-tiebreaker-s-nw.png";
-import IconConquerTieBreakerSWN from "./assets/images/conquer-tiebreaker-sw-n.png";
-import IconConquerTieBreakerWSE from "./assets/images/conquer-tiebreaker-w-se.png";
-
-//meeples
-import MeepleBlue from "./assets/images/meeple-blue.png";
-import MeepleYellow from "./assets/images/meeple-yellow.png";
-import MeepleGreen from "./assets/images/meeple-green.png";
-import MeepleRed from "./assets/images/meeple-red.png";
-import MeepleGrey from "./assets/images/meeple-grey.png";
+//-------------------------------
+// LOAD CARD DATA
+//-------------------------------
+//get the card data from dynamodb
+export let cardData = null;
+async function getCardData(cardNum, position) {    
+    API.graphql(graphqlOperation(listAutomaCards, {limit: 100})).then((evt) => {
+        cardData = evt.data.listAutomaCards.items;
+    });
+}
+getCardData();
 
 
-//vars
-const viewcards = document.getElementById("view-cards");
-const viewsetup = document.getElementById("view-setup");
-const resultAutoma1 = document.getElementById("automaResult1");
-const resultAutoma2 = document.getElementById("automaResult2");
-const resultShadowEmpire = document.getElementById("shadowEmpireResult");
-const incomeResult = document.getElementById("income");
-const toppleResult = document.getElementById("topple");
-const conquerTieBreakerResult = document.getElementById("conquer-tiebreaker");
-const meepleAutoma = document.getElementById("automa-meeple");
-const meepleShadowEmpire = document.getElementById("shadowempire-meeple");
-const currentCards = document.getElementById("currentcards");
-const progress = document.getElementById("progress");
-const era = document.getElementById("era");
-const discard = document.getElementById("discard");
-const btnTakeTurn = document.getElementById('taketurn');
-const btnConfirmTakeIncome = document.getElementById('takeincome');
-const btnViewDiscard = document.getElementById('viewdiscard');
-const btnGameReview = document.getElementById('gameReview');
-
-//game state
+//-------------------------------
+// GAME STATE
+//-------------------------------
 export let automaState = { 
     era: 0,
     deck: [8,9,10,11,12,13,14,15,16,17,18,19,20,21,22],
@@ -84,51 +50,7 @@ export let automaState = {
     }
 };
 
-//get the card data from dynamodb
-export let cardData = null;
-async function getCardData(cardNum, position) {    
-    API.graphql(graphqlOperation(listAutomaCards, {limit: 100})).then((evt) => {
-        cardData = evt.data.listAutomaCards.items;
-    });
-}
-getCardData();
-
-let modalMessage = $("#modalGameMessage")
-function gameMessage(message) {
-    $(".modal-body", modalMessage).html(message);
-    modalMessage.modal('show');
-}
-
-//events
-document.getElementById('newGameYes').addEventListener('click', ()=>{
-  setupNewGame();
-});
-
-document.getElementById('startgame').addEventListener('click', ()=>{
-  startGame();
-});
-
-document.getElementById('takeIncomeYes').addEventListener('click', ()=>{
-    takeIncomeTurn();  
-});
-
-btnConfirmTakeIncome.addEventListener('click', ()=>{
-  confirmTakeIncome();  
-});
-
-btnTakeTurn.addEventListener('click', ()=>{
-    takeAutomaTurn();  
-});
-
-btnViewDiscard.addEventListener('click', ()=> {
-    showDiscardPile();
-});
-
-btnGameReview.addEventListener('click', ()=> {
-    showGameReview();
-});
-
-//methods
+//Handle the Game State
 let automaStateHandler = {  
     get: function(target, name) {
         return target[name];
@@ -137,94 +59,57 @@ let automaStateHandler = {
       target[prop] = value;
       switch(prop) {
             case "era":      
-                era.innerHTML = value;
+                dom.setElementHtml(dom.era, value);
                 break;
             case "hand":
-                progress.innerHTML = value.length || 0;
+                dom.setElementHtml(dom.progress, value.length || 0);
                 break;
             case "discard":
-                discard.innerHTML = value.length || 0;
+                dom.setElementHtml(dom.discard, value.length || 0);
                 break;
             case "gameStarted":
-                btnTakeTurn.disabled = !value;
-                btnConfirmTakeIncome.disabled = value;
+                dom.disableElement(dom.btnTakeTurn, !value);
+                dom.disableElement(dom.btnConfirmTakeIncome, value);
                 break;
             case "isIncomeTurn":
-                btnTakeTurn.disabled = value;
-                btnConfirmTakeIncome.disabled = !value;
+                dom.disableElement(dom.btnTakeTurn, value);
+                dom.disableElement(dom.btnConfirmTakeIncome, !value);                
                 break;
       }
       return true;
     }
 };
 
-let proxyAutomaState = new Proxy(automaState, automaStateHandler);
+//setup a proxy handler to watch some variables
+const proxyAutomaState = new Proxy(automaState, automaStateHandler);
+
+//-------------------------------
+//PRIVATE METHODS
+//-------------------------------
+
+//a modal for handling game messages
+const modalMessage = $("#modalGameMessage");
+function gameMessage(message) {
+    $(".modal-body", modalMessage).html(message);
+    modalMessage.modal('show');
+}
 
 function updateAutomaStateUI() {
-    document.getElementById("progress").innerHTML = proxyAutomaState.hand.length;
-    document.getElementById("discard").innerHTML = proxyAutomaState.discard.length;
-    currentCards.innerHTML = proxyAutomaState.currentCards.length > 0 ? `${proxyAutomaState.currentCards[0]}|${proxyAutomaState.currentCards[1]}` : "&mdash;";
+    dom.setElementHtml(dom.progress, proxyAutomaState.hand.length);
+    dom.setElementHtml(dom.discard, proxyAutomaState.discard.length);
+    dom.setElementHtml(dom.currentCards, proxyAutomaState.currentCards.length > 0 ? `${proxyAutomaState.currentCards[0]}|${proxyAutomaState.currentCards[1]}` : "&mdash;");
 }
 
 function clearTurnResult() {
-    resultAutoma2.innerHTML = "<div class='col text-center'>&mdash;</div>";
-    resultAutoma1.innerHTML = "";
-    resultShadowEmpire.innerHTML = "";
-    toppleResult.style.display = "none";
-    incomeResult.style.display = "none";
-    conquerTieBreakerResult.style.display = "none";
-    currentCards.innerHTML = "&mdash;";
+    dom.setElementHtml(dom.resultAutoma2, "<div class='col text-center'>&mdash;</div>");
+    dom.setElementHtml(dom.resultAutoma1,"");
+    dom.setElementHtml(dom.resultShadowEmpire,"");
+    dom.showElement(dom.toppleResult, false);
+    dom.showElement(dom.incomeResult, false);
+    dom.showElement(dom.conquerTieBreakerResult, false);
+    dom.setElementHtml(dom.currentCards, "&mdash;");
 }
 
-function startGame() { 
-    console.log("NEW GAME");
-
-    proxyAutomaState.gameStarted = true;
-    proxyAutomaState.isIncomeTurn = false;
-
-    //choose colors for bots
-    meepleAutoma.src = MeepleRed;
-    meepleShadowEmpire.src = MeepleGrey;
-
-    //starting hand is cards 1 through 7
-    proxyAutomaState.hand = [1,2,3,4,5,6,7];
-
-    // reset & shuffle the deck
-    proxyAutomaState.deck = [8,9,10,11,12,13,14,15,16,17,18,19,20,21,22];
-    shuffle(proxyAutomaState.deck);   
-
-    // clear the discard pile
-    proxyAutomaState.discard = [];
-    
-    // clear any current cards
-    proxyAutomaState.currentCards = [];
-
-    // clear the last game review 
-    proxyAutomaState.gameReview = {
-        era1: [],
-        era2: [],
-        era3: [],
-        era4: [],
-        era5: []
-    };
-
-    //add one card to the automa hand to make it an even 8
-    addToHand(1);    
-
-    //shuffle the hand
-    shuffle(proxyAutomaState.hand);
-
-    //set the era - the automa takes an income action as its first turn. So, technically
-    // they will "start" in era 2 after taking income.
-    proxyAutomaState.era = 2;
-    updateAutomaStateUI();
-    clearTurnResult();
-
-    viewsetup.style.display = "none";
-    viewcards.style.display = "";
-        
-    gameMessage("<strong>Resolve an Income Turn</strong> for the Automa.<br/><small class='text-muted'>The Automa takes an income turn on its first turn just as a player would. Then the Automa advances to Era 2.</small>");
-}
 
 // add cards to hand
 function addToHand(numCards) {    
@@ -259,9 +144,9 @@ function checkForEarlyIncomeTurn() {
     if (proxyAutomaState.hand.length == 0 && leftcard.income == true) {               
         console.log("  TAKE EARLY INCOME");
         proxyAutomaState.isIncomeTurn = true;
-        btnTakeTurn.disabled = true;
-        btnConfirmTakeIncome.disabled = false;
-                
+        dom.disableElement(dom.btnTakeTurn, true);
+        dom.disableElement(dom.btnConfirmTakeIncome, false);
+                        
         gameMessage("The Automa takes an <strong>Early Income Turn</strong>. Score the Automa and then click the <strong>Take Automa Income</strong> button to start the next era.");    
     }
 }
@@ -299,81 +184,6 @@ function drawCards(numCards) {
     };
 }
 
-function takeAutomaTurn() {
-    console.log("TAKE TURN");
-
-    console.log(" DISCARD");
-    discardPlayedCards();
-    
-    //if we have no cards left to draw, this is a regular income turn
-    if (proxyAutomaState.hand.length == 0) {
-        console.log(" NO CARDS LEFT - INCOME TURN");
-        proxyAutomaState.isIncomeTurn = true;
-        clearTurnResult();
-        updateAutomaStateUI();
-
-        gameMessage("The Automa takes an <strong>Income Turn</strong>. Score the Automa and then click the <strong>Take Automa Income</strong> button to start the next era."); 
-        btnTakeTurn.disabled = true;
-        btnConfirmTakeIncome.disabled = false;
-    }
-    else {
-        console.log(" DRAW 2 CARDS");
-        drawCards(2);
-
-        //shuffle the two drawn cards so we lay them down randomly
-        shuffle(proxyAutomaState.currentCards);
-        displayAutomaResult(proxyAutomaState.currentCards);        
-
-        //we can have an early income turn
-        checkForEarlyIncomeTurn();
-
-        console.log(proxyAutomaState);
-    }
-}
-
-function confirmTakeIncome() {
-    if (proxyAutomaState.era < 5) {
-        $('#modalConfirmIncome').modal("show");
-    }
-    else {    
-        discardPlayedCards();
-        clearTurnResult();
-        updateAutomaStateUI();  
-        resultAutoma2.innerHTML = `<div class='col text-center'>It's <em>game over</em> for the Automa!</div>`;
-        gameMessage("Automa has completed its game");
-
-        btnTakeTurn.disabled = true;
-        btnConfirmTakeIncome.disabled = true;
-    }
-}
-
-function takeIncomeTurn() {
-    console.log("TAKE INCOME");
-
-    discardPlayedCards();
-    
-    //put the discard pile back into the hand and add 2 cards
-    createNewHandFromDiscard();
-
-    //add 2 cards to the automa deck
-    addToHand(2);
-
-    //shuffle the new deck
-    shuffle(proxyAutomaState.hand);        
-
-    //increase the automa to the next era
-    proxyAutomaState.era++;
-
-    clearTurnResult();
-    updateAutomaStateUI();
-
-    //reset the app state so we know we are no longer in an income turn
-    proxyAutomaState.isIncomeTurn = false;
-
-    btnTakeTurn.disabled = false;
-    btnConfirmTakeIncome.disabled = true;
-}
-
 function shuffle(array) {   
     var currentIndex = array.length, temporaryValue, randomIndex;
     
@@ -391,20 +201,6 @@ function shuffle(array) {
     }
     
     return array;     
-}
-
-function setupNewGame() {
-    proxyAutomaState.gameStarted = false;
-    viewsetup.style.display = "";
-    viewcards.style.display = "none";
-    era.innerHTML = "&mdash;";
-    progress.innerHTML = "&mdash;";
-    discard.innerHTML = "&mdash;";
-
-    clearTurnResult();
-
-    btnTakeTurn.disabled = true;
-    btnConfirmTakeIncome.disabled = true;
 }
 
 function getCardDetails(id) {
@@ -431,25 +227,25 @@ function displayAutomaResult(cards) {
         switch (position)
         {
             case 0:
-                resultAutoma1.innerHTML = getTrackImage(leftcard.automatrack);
-                resultShadowEmpire.innerHTML = getTrackImage(leftcard.shadowtrack);
+                dom.setElementHtml(dom.resultAutoma1, getTrackImage(leftcard.automatrack));
+                dom.setElementHtml(dom.resultShadowEmpire, getTrackImage(leftcard.shadowtrack));
                 break;
 
             default:
                 
-                resultAutoma2.innerHTML = "";
+                dom.setElementHtml(dom.resultAutoma2, "");
                 let htmlOut = "";
-                if (rightcard.favorite > 0) htmlOut += `<img src="${IconFavorite}" alt="favorite" class="mx-2 order-${rightcard.favorite}" />`;
-                if (rightcard.military > 0) htmlOut += `<img src="${IconMilitary}" alt="military" class="mx-2 order-${rightcard.military}" />`;
-                if (rightcard.science > 0) htmlOut += `<img src="${IconScience}" alt="science" class="mx-2 order-${rightcard.science}" />`;
-                if (rightcard.exploration > 0) htmlOut += `<img src="${IconExploration}" alt="exploration" class="mx-2 order-${rightcard.exploration}" />`;
-                if (rightcard.technology > 0) htmlOut += `<img src="${IconTechnology}" alt="technology" class="mx-2 order-${rightcard.technology}" />`;
-                resultAutoma2.innerHTML = htmlOut;                           
+                if (rightcard.favorite > 0) htmlOut += `<img src="${asset.IconFavorite}" alt="favorite" class="mx-2 order-${rightcard.favorite}" />`;
+                if (rightcard.military > 0) htmlOut += `<img src="${asset.IconMilitary}" alt="military" class="mx-2 order-${rightcard.military}" />`;
+                if (rightcard.science > 0) htmlOut += `<img src="${asset.IconScience}" alt="science" class="mx-2 order-${rightcard.science}" />`;
+                if (rightcard.exploration > 0) htmlOut += `<img src="${asset.IconExploration}" alt="exploration" class="mx-2 order-${rightcard.exploration}" />`;
+                if (rightcard.technology > 0) htmlOut += `<img src="${asset.IconTechnology}" alt="technology" class="mx-2 order-${rightcard.technology}" />`;
+                dom.setElementHtml(dom.resultAutoma2, htmlOut);
 
-                incomeResult.style.display = leftcard.income ? "" : "none";
-                toppleResult.style.display = rightcard.topple ? "" : "none";
-                conquerTieBreakerResult.style.display = "";
-                conquerTieBreakerResult.src = `images/conquer-tiebreaker-${rightcard.conquertiebreaker}.png`;
+                dom.showElement(dom.incomeResult, leftcard.income ? true : false);
+                dom.showElement(dom.toppleResult, rightcard.topple ? true : false);                
+                dom.showElement(dom.conquerTieBreakerResult, true);
+                dom.setImageSrc(dom.conquerTieBreakerResult, `images/conquer-tiebreaker-${rightcard.conquertiebreaker}.png`);                
         }
     }    
     updateAutomaStateUI();
@@ -458,18 +254,163 @@ function displayAutomaResult(cards) {
 function getTrackImage(type) {
     switch (type) {
         case "any":
-            return `<img src="${IconSquare}" class="track-icon" /> All non-finished tracks`;
+            return `<img src="${asset.IconSquare}" class="track-icon" /> All non-finished tracks`;
             break;
         case "finish":
-                return `<img src="${IconFlag}" class="track-icon" /> Non-finished, closest to end`;
+                return `<img src="${asset.IconFlag}" class="track-icon" /> Non-finished, closest to end`;
             break;
         case "landmark":
-            return `<img src="${IconHouse}" class="track-icon" /> Non-finished tracks, closest to landmark/end`;
+            return `<img src="${asset.IconHouse}" class="track-icon" /> Non-finished tracks, closest to landmark/end`;
             break;
     }
 }
 
-function showDiscardPile() {
+//-------------------------------
+//PUBLIC METHODS
+//-------------------------------
+export function startGame() { 
+    console.log("NEW GAME");
+
+    proxyAutomaState.gameStarted = true;
+    proxyAutomaState.isIncomeTurn = false;
+
+    //choose colors for bots
+    dom.setImageSrc(dom.meepleAutoma, asset.MeepleRed);
+    dom.setImageSrc(dom.meepleShadowEmpire, asset.MeepleGrey);
+    
+    //starting hand is cards 1 through 7
+    proxyAutomaState.hand = [1,2,3,4,5,6,7];
+
+    // reset & shuffle the deck
+    proxyAutomaState.deck = [8,9,10,11,12,13,14,15,16,17,18,19,20,21,22];
+    shuffle(proxyAutomaState.deck);   
+
+    // clear the discard pile
+    proxyAutomaState.discard = [];
+    
+    // clear any current cards
+    proxyAutomaState.currentCards = [];
+
+    // clear the last game review 
+    proxyAutomaState.gameReview = {
+        era1: [],
+        era2: [],
+        era3: [],
+        era4: [],
+        era5: []
+    };
+
+    //add one card to the automa hand to make it an even 8
+    addToHand(1);    
+
+    //shuffle the hand
+    shuffle(proxyAutomaState.hand);
+
+    //set the era - the automa takes an income action as its first turn. So, technically
+    // they will "start" in era 2 after taking income.
+    proxyAutomaState.era = 2;
+    updateAutomaStateUI();
+    clearTurnResult();
+
+    dom.showElement(dom.viewsetup, false);
+    dom.showElement(dom.viewcards, true);
+        
+    gameMessage("<strong>Resolve an Income Turn</strong> for the Automa.<br/><small class='text-muted'>The Automa takes an income turn on its first turn just as a player would. Then the Automa advances to Era 2.</small>");
+}
+
+export function takeAutomaTurn() {
+    console.log("TAKE TURN");
+
+    console.log(" DISCARD");
+    discardPlayedCards();
+    
+    //if we have no cards left to draw, this is a regular income turn
+    if (proxyAutomaState.hand.length == 0) {
+        console.log(" NO CARDS LEFT - INCOME TURN");
+        proxyAutomaState.isIncomeTurn = true;
+        clearTurnResult();
+        updateAutomaStateUI();
+
+        gameMessage("The Automa takes an <strong>Income Turn</strong>. Score the Automa and then click the <strong>Take Automa Income</strong> button to start the next era."); 
+        dom.disableElement(dom.btnTakeTurn, true);
+        dom.disableElement(dom.btnConfirmTakeIncome, false);
+    }
+    else {
+        console.log(" DRAW 2 CARDS");
+        drawCards(2);
+
+        //shuffle the two drawn cards so we lay them down randomly
+        shuffle(proxyAutomaState.currentCards);
+        displayAutomaResult(proxyAutomaState.currentCards);        
+
+        //we can have an early income turn
+        checkForEarlyIncomeTurn();
+
+        console.log(proxyAutomaState);
+    }
+}
+
+export function confirmTakeIncome() {
+    if (proxyAutomaState.era < 5) {
+        $('#modalConfirmIncome').modal("show");
+    }
+    else {    
+        discardPlayedCards();
+        clearTurnResult();
+        updateAutomaStateUI();  
+        dom.setElementHtml(dom.resultAutoma2, `<div class='col text-center'>It's <em>game over</em> for the Automa!</div>`);
+        gameMessage("Automa has completed its game");
+
+        dom.disableElement(elems.btnTakeTurn, true);                
+        dom.disableElement(dom.btnConfirmTakeIncome, false);
+    }
+}
+
+export function takeIncomeTurn() {
+    console.log("TAKE INCOME");
+
+    discardPlayedCards();
+    
+    //put the discard pile back into the hand and add 2 cards
+    createNewHandFromDiscard();
+
+    //add 2 cards to the automa deck
+    addToHand(2);
+
+    //shuffle the new deck
+    shuffle(proxyAutomaState.hand);        
+
+    //increase the automa to the next era
+    proxyAutomaState.era++;
+
+    clearTurnResult();
+    updateAutomaStateUI();
+
+    //reset the app state so we know we are no longer in an income turn
+    proxyAutomaState.isIncomeTurn = false;
+
+    //enable/disable buttons
+    dom.disableElement(dom.btnTakeTurn, false);
+    dom.disableElement(dom.btnConfirmTakeIncome, true);    
+}
+
+export function setupNewGame() {
+    proxyAutomaState.gameStarted = false;
+    
+    dom.showElement(dom.viewsetup, true);
+    dom.showElement(dom.viewcards, false);
+
+    dom.setElementHtml(dom.era, "&mdash;");
+    dom.setElementHtml(dom.progress, "&mdash;");
+    dom.setElementHtml(dom.discard, "&mdash;");
+    
+    clearTurnResult();
+
+    dom.disableElement(dom.btnTakeTurn, true);
+    dom.disableElement(dom.btnConfirmTakeIncome, true);  
+}
+
+export function showDiscardPile() {
     let message = `<div>Here is the current state of the discard pile: <br />`;
     
     var count = 0;
@@ -497,7 +438,7 @@ function showDiscardPile() {
     gameMessage(message);
 }
 
-function showGameReview() {
+export function showGameReview() {
     let message = `<div>Here is a review of the current state of the game: <br />`;    
 
     for (let era in proxyAutomaState.gameReview) {
@@ -525,8 +466,6 @@ function showGameReview() {
             }
         })
     };
-   
-
     message += "</div>"
 
     gameMessage(message);
