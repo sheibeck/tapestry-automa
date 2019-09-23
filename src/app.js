@@ -17,6 +17,8 @@ import { listAutomaCards } from './graphql/queries';
 import * as asset from "./assets.js"
 import * as dom from "./elems.js";
 import * as templates from "./templates.js";
+import * as decision from "./decision.js";
+import * as gamestate from "./gamestate.js";
 
 //-------------------------------
 // LOAD CARD DATA
@@ -30,75 +32,21 @@ async function getCardData(cardNum, position) {
 }
 getCardData();
 
-
-//-------------------------------
-// GAME STATE
-//-------------------------------
-export let automaState = { 
-    era: 0,
-    deck: [8,9,10,11,12,13,14,15,16,17,18,19,20,21,22],
-    discard: [],
-    hand: [],
-    currentCards: [],
-    gameStarted: false,
-    isIncomeTurn: false,
-    gameReview: {
-        era1: [],
-        era2: [],
-        era3: [],
-        era4: [],
-        era5: []
-    }
-};
-
-//Handle the Game State
-let automaStateHandler = {  
-    get: function(target, name) {
-        return target[name];
-    },  
-    set: function(target, prop, value) { 
-      target[prop] = value;
-      switch(prop) {
-            case "era":      
-                dom.setElementHtml(dom.era, value);
-                break;
-            case "hand":
-                dom.setElementHtml(dom.progress, value.length || 0);
-                break;
-            case "discard":
-                dom.setElementHtml(dom.discard, value.length || 0);
-                break;
-            case "gameStarted":
-                dom.disableElement(dom.btnTakeTurn, !value);
-                dom.disableElement(dom.btnConfirmTakeIncome, value);
-                break;
-            case "isIncomeTurn":
-                dom.disableElement(dom.btnTakeTurn, value);
-                dom.disableElement(dom.btnConfirmTakeIncome, !value);                
-                break;
-      }
-      return true;
-    }
-};
-
-//setup a proxy handler to watch some variables
-const proxyAutomaState = new Proxy(automaState, automaStateHandler);
-
 //-------------------------------
 //PRIVATE METHODS
 //-------------------------------
 
 //a modal for handling game messages
 const modalMessage = $("#modalGameMessage");
-function gameMessage(message) {
+export function gameMessage(message) {
     $(".modal-body", modalMessage).html(message);
     modalMessage.modal('show');
 }
 
 function updateAutomaStateUI() {
-    dom.setElementHtml(dom.progress, proxyAutomaState.hand.length);
-    dom.setElementHtml(dom.discard, proxyAutomaState.discard.length);
-    dom.setElementHtml(dom.currentCards, proxyAutomaState.currentCards.length > 0 ? `${proxyAutomaState.currentCards[0]}|${proxyAutomaState.currentCards[1]}` : "&mdash;");
+    dom.setElementHtml(dom.progress, gamestate.proxyAutomaState.hand.length);
+    dom.setElementHtml(dom.discard, gamestate.proxyAutomaState.discard.length);
+    dom.setElementHtml(dom.currentCards, gamestate.proxyAutomaState.currentCards.length > 0 ? `${gamestate.proxyAutomaState.currentCards[0]}|${gamestate.proxyAutomaState.currentCards[1]}` : "&mdash;");
 }
 
 function clearTurnResult() {
@@ -115,8 +63,8 @@ function clearTurnResult() {
 // add cards to hand
 function addToHand(numCards) {    
     for(let i = 0; i < numCards; i++) {
-        let card = proxyAutomaState.deck.pop();
-        proxyAutomaState.hand.push(card);
+        let card = gamestate.proxyAutomaState.deck.pop();
+        gamestate.proxyAutomaState.hand.push(card);
     };
 }
 
@@ -124,55 +72,57 @@ function addToHand(numCards) {
 function createNewHandFromDiscard() {
 
     //discard our current cards
-    while(proxyAutomaState.currentCards.length > 0) {
-        let card = proxyAutomaState.currentCards.pop();
-        proxyAutomaState.discard.push(card);
+    while(gamestate.proxyAutomaState.currentCards.length > 0) {
+        let card = gamestate.proxyAutomaState.currentCards.pop();
+        gamestate.proxyAutomaState.discard.push(card);
     };
 
-    while(proxyAutomaState.discard.length > 0) {
-        let card = proxyAutomaState.discard.pop();
-        proxyAutomaState.hand.push(card);
+    while(gamestate.proxyAutomaState.discard.length > 0) {
+        let card = gamestate.proxyAutomaState.discard.pop();
+        gamestate.proxyAutomaState.hand.push(card);
     };
 }
 
 //is it time for the automa to take an income turn?
 function checkForEarlyIncomeTurn() {     
     // get the left card so we can see if it has the income symbol
-    let leftcard = getCardDetails(proxyAutomaState.currentCards[0]);
+    let leftcard = getCardDetails(gamestate.proxyAutomaState.currentCards[0]);
 
     //If the decision deck is now empty and the track card has an income icon, the
     // bots take their income turn and you skip the last step of this procedure.
-    if (proxyAutomaState.hand.length == 0 && leftcard.income == true) {               
+    if (gamestate.proxyAutomaState.hand.length == 0 && leftcard.income == true) {               
         console.log("  TAKE EARLY INCOME");
-        proxyAutomaState.isIncomeTurn = true;
+        gamestate.proxyAutomaState.isIncomeTurn = true;
         dom.disableElement(dom.btnTakeTurn, true);
         dom.disableElement(dom.btnConfirmTakeIncome, false);
                         
         gameMessage("The Automa takes an <strong>Early Income Turn</strong>. Score the Automa and then click the <strong>Take Automa Income</strong> button to start the next era.");    
+
+        return true;
     }
 }
 
 function discardPlayedCards() {
     //move the current cards into the discard pile
-    while(proxyAutomaState.currentCards.length > 0)
+    while(gamestate.proxyAutomaState.currentCards.length > 0)
     {
-        let card = proxyAutomaState.currentCards.pop();
-        proxyAutomaState.discard.push(card);
+        let card = gamestate.proxyAutomaState.currentCards.pop();
+        gamestate.proxyAutomaState.discard.push(card);
 
         //update the game overview so we can see exactly which
         //cards were play in which order for each era
-        switch(proxyAutomaState.era) {
+        switch(gamestate.proxyAutomaState.era) {
             case 2:
-                proxyAutomaState.gameReview.era2.push(card);
+                gamestate.proxyAutomaState.gameReview.era2.push(card);
                 break;
             case 3:
-                proxyAutomaState.gameReview.era3.push(card);
+                gamestate.proxyAutomaState.gameReview.era3.push(card);
                 break;
             case 4:
-                proxyAutomaState.gameReview.era4.push(card);
+                gamestate.proxyAutomaState.gameReview.era4.push(card);
                 break;
             case 5:
-                proxyAutomaState.gameReview.era5.push(card);
+                gamestate.proxyAutomaState.gameReview.era5.push(card);
                 break;
         }
     };    
@@ -180,8 +130,8 @@ function discardPlayedCards() {
 
 function drawCards(numCards) {
     for(let i = 0; i < numCards; i++) {
-        let card = proxyAutomaState.hand.pop();
-        proxyAutomaState.currentCards.push(card);
+        let card = gamestate.proxyAutomaState.hand.pop();
+        gamestate.proxyAutomaState.currentCards.push(card);
     };
 }
 
@@ -204,7 +154,7 @@ function shuffle(array) {
     return array;     
 }
 
-function getCardDetails(id) {
+export function getCardDetails(id) {
     //get the left card details
     let card = cardData.find(item => {
         return item.id == id;
@@ -222,8 +172,8 @@ function displayAutomaResult(cards) {
     let rightcard = getCardDetails(cards[1]);
 
     //update the ui
-    for(let position = 0; position < proxyAutomaState.currentCards.length; position++) {
-        let card = proxyAutomaState.currentCards[position];
+    for(let position = 0; position < gamestate.proxyAutomaState.currentCards.length; position++) {
+        let card = gamestate.proxyAutomaState.currentCards[position];
         
         switch (position)
         {
@@ -273,28 +223,28 @@ export function getTrackImage(type, hideText) {
 export function startGame() { 
     console.log("NEW GAME");
 
-    proxyAutomaState.gameStarted = true;
-    proxyAutomaState.isIncomeTurn = false;
+    gamestate.proxyAutomaState.gameStarted = true;
+    gamestate.proxyAutomaState.isIncomeTurn = true;
 
     //choose colors for bots
     dom.setImageSrc(dom.meepleAutoma, asset.MeepleRed);
     dom.setImageSrc(dom.meepleShadowEmpire, asset.MeepleGrey);
     
     //starting hand is cards 1 through 7
-    proxyAutomaState.hand = [1,2,3,4,5,6,7];
+    gamestate.proxyAutomaState.hand = [1,2,3,4,5,6,7];
 
     // reset & shuffle the deck
-    proxyAutomaState.deck = [8,9,10,11,12,13,14,15,16,17,18,19,20,21,22];
-    shuffle(proxyAutomaState.deck);   
+    gamestate.proxyAutomaState.deck = [8,9,10,11,12,13,14,15,16,17,18,19,20,21,22];
+    shuffle(gamestate.proxyAutomaState.deck);   
 
     // clear the discard pile
-    proxyAutomaState.discard = [];
+    gamestate.proxyAutomaState.discard = [];
     
     // clear any current cards
-    proxyAutomaState.currentCards = [];
+    gamestate.proxyAutomaState.currentCards = [];
 
     // clear the last game review 
-    proxyAutomaState.gameReview = {
+    gamestate.proxyAutomaState.gameReview = {
         era1: [],
         era2: [],
         era3: [],
@@ -306,18 +256,17 @@ export function startGame() {
     addToHand(1);    
 
     //shuffle the hand
-    shuffle(proxyAutomaState.hand);
+    shuffle(gamestate.proxyAutomaState.hand);
 
     //set the era - the automa takes an income action as its first turn. So, technically
     // they will "start" in era 2 after taking income.
-    proxyAutomaState.era = 2;
+    gamestate.proxyAutomaState.era = 1;    
+    gamestate.setShadowEmpireInitialFavorite();
     updateAutomaStateUI();
     clearTurnResult();
 
     dom.showElement(dom.viewsetup, false);
-    dom.showElement(dom.viewcards, true);
-        
-    gameMessage("<strong>Resolve an Income Turn</strong> for the Automa.<br/><small class='text-muted'>The Automa takes an income turn on its first turn just as a player would. Then the Automa advances to Era 2.</small>");
+    dom.showElement(dom.viewcards, true);        
 }
 
 export function takeAutomaTurn() {
@@ -327,9 +276,9 @@ export function takeAutomaTurn() {
     discardPlayedCards();
     
     //if we have no cards left to draw, this is a regular income turn
-    if (proxyAutomaState.hand.length == 0) {
+    if (gamestate.proxyAutomaState.hand.length == 0) {
         console.log(" NO CARDS LEFT - INCOME TURN");
-        proxyAutomaState.isIncomeTurn = true;
+        gamestate.proxyAutomaState.isIncomeTurn = true;
         clearTurnResult();
         updateAutomaStateUI();
 
@@ -339,21 +288,24 @@ export function takeAutomaTurn() {
     }
     else {
         console.log(" DRAW 2 CARDS");
-        drawCards(2);
+        drawCards(2);        
 
         //shuffle the two drawn cards so we lay them down randomly
-        shuffle(proxyAutomaState.currentCards);
-        displayAutomaResult(proxyAutomaState.currentCards);        
+        shuffle(gamestate.proxyAutomaState.currentCards);
+        displayAutomaResult(gamestate.proxyAutomaState.currentCards);        
+
+        console.log(gamestate.proxyAutomaState);
 
         //we can have an early income turn
-        checkForEarlyIncomeTurn();
-
-        console.log(proxyAutomaState);
+        if (!checkForEarlyIncomeTurn()) {
+            decision.advanceTracks();    
+        }        
     }
+
 }
 
 export function confirmTakeIncome() {
-    if (proxyAutomaState.era < 5) {
+    if (gamestate.proxyAutomaState.era < 5) {
         $('#modalConfirmIncome').modal("show");
     }
     else {    
@@ -371,33 +323,42 @@ export function confirmTakeIncome() {
 export function takeIncomeTurn() {
     console.log("TAKE INCOME");
 
-    discardPlayedCards();
-    
-    //put the discard pile back into the hand and add 2 cards
-    createNewHandFromDiscard();
+    //era 1 is income
+    if (gamestate.proxyAutomaState.era === 1) 
+    {
+        gamestate.proxyAutomaState.era++;
+        gameMessage("The automa <strong>Gains 1 Tapestry card</strong>.");
 
-    //add 2 cards to the automa deck
-    addToHand(2);
+    }
+    else {
+        discardPlayedCards();
+        
+        //put the discard pile back into the hand and add 2 cards
+        createNewHandFromDiscard();
 
-    //shuffle the new deck
-    shuffle(proxyAutomaState.hand);        
+        //add 2 cards to the automa deck
+        addToHand(2);
 
-    //increase the automa to the next era
-    proxyAutomaState.era++;
+        //shuffle the new deck
+        shuffle(gamestate.proxyAutomaState.hand);        
 
-    clearTurnResult();
-    updateAutomaStateUI();
+        //increase the automa to the next era
+        gamestate.proxyAutomaState.era++;
+
+        clearTurnResult();
+        updateAutomaStateUI();        
+    }
 
     //reset the app state so we know we are no longer in an income turn
-    proxyAutomaState.isIncomeTurn = false;
+    gamestate.proxyAutomaState.isIncomeTurn = false;
 
     //enable/disable buttons
     dom.disableElement(dom.btnTakeTurn, false);
-    dom.disableElement(dom.btnConfirmTakeIncome, true);    
+    dom.disableElement(dom.btnConfirmTakeIncome, true); 
 }
 
 export function setupNewGame() {
-    proxyAutomaState.gameStarted = false;
+    gamestate.proxyAutomaState.gameStarted = false;
     
     dom.showElement(dom.viewsetup, true);
     dom.showElement(dom.viewcards, false);
@@ -415,12 +376,12 @@ export function setupNewGame() {
 export function showDiscardPile() {
     let message = `<div>Here is the current state of the discard pile: <br />`;
            
-    for (let count = 0; count < proxyAutomaState.discard.length; count++) {
+    for (let count = 0; count < gamestate.proxyAutomaState.discard.length; count++) {
 
         //get the card pair
-        let leftCard = getCardDetails(proxyAutomaState.discard[count]);
+        let leftCard = getCardDetails(gamestate.proxyAutomaState.discard[count]);
         count++; 
-        let rightCard = getCardDetails(proxyAutomaState.discard[count]);
+        let rightCard = getCardDetails(gamestate.proxyAutomaState.discard[count]);
 
         message += templates.formatCardLogPair(leftCard, rightCard);
     };
@@ -431,14 +392,14 @@ export function showDiscardPile() {
 export function showGameReview() {
     let message = `<div>Here is a review of the current state of the game: <br />`;    
 
-    for (let era in proxyAutomaState.gameReview) {
+    for (let era in gamestate.proxyAutomaState.gameReview) {
         message += `<h4>${era.toUpperCase()}</h4>`;        
-        for (let count = 0; count < proxyAutomaState.gameReview[era].length; count++) {
+        for (let count = 0; count < gamestate.proxyAutomaState.gameReview[era].length; count++) {
 
             //get the card pair
-            let leftCard = getCardDetails(proxyAutomaState.gameReview[era][count]);
+            let leftCard = getCardDetails(gamestate.proxyAutomaState.gameReview[era][count]);
             count++; 
-            let rightCard = getCardDetails(proxyAutomaState.gameReview[era][count]);
+            let rightCard = getCardDetails(gamestate.proxyAutomaState.gameReview[era][count]);
 
             message += templates.formatCardLogPair(leftCard, rightCard);
         };

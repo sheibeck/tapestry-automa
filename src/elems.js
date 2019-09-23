@@ -1,3 +1,5 @@
+import * as gamestate from "./gamestate";
+
 //dom elements
 export const viewcards = document.getElementById("view-cards");
 export const viewsetup = document.getElementById("view-setup");
@@ -19,13 +21,28 @@ export const btnViewDiscard = document.getElementById('viewdiscard');
 export const btnGameReview = document.getElementById('gameReview');
 
 //events
+document.addEventListener('click', function (event) {
+
+	// If the event target doesn't match bail
+	if (event.target.hasAttribute('data-automa-favorite')) {
+        var favorite = event.target.getAttribute("data-automa-favorite");        
+        gamestate.setAutomaFavoriteTrack(favorite);
+        console.log("Automa favorite track is: " + favorite);
+
+        app.startGame();
+    }
+    else return;    
+
+}, false);
+
+
 document.getElementById('newGameYes').addEventListener('click', ()=>{
     app.setupNewGame();
 });
 
-document.getElementById('startgame').addEventListener('click', ()=>{
+/*document.getElementById('startgame').addEventListener('click', ()=>{
     app.startGame();
-});
+});*/
 
 document.getElementById('takeIncomeYes').addEventListener('click', ()=>{
     app.takeIncomeTurn();  

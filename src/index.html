@@ -139,7 +139,7 @@
               <a class="btn btn-secondary m-2" data-toggle="collapse" href="#collapseSetup" role="button" aria-expanded="false" aria-controls="collapseSetup">
                   <i class="fas fa-book"></i> Show Setup
                 </a>
-              <button id="startgame" type="button" data-dismiss="modal" class="btn btn-primary m-2"><i class="fas fa-play-circle"></i> Begin Game</button>            
+              <button type="button" data-toggle="modal" data-target="#modalBeginGame" class="btn btn-primary m-2"><i class="fas fa-play-circle"></i> Begin Game</button>            
             </div>
             <div class="col-12 text-center">
               <a target="_blank" href="https://app.box.com/s/uqp6m71co7gdyfahz5qamp3bd7o1v06i">Download the rules</a>
@@ -186,96 +186,125 @@
 
     <!-- game messages -->
     <div id="modalGameMessage" class="modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-lg" role="document">
-          <div class="modal-content">
-            <div class="modal-header bg-warning">
-              <h5 class="modal-title">Game Message</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>            
-            </div>
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title">Game Message</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>            
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- confirm -->
-      <div id="modalConfirmNewGame" class="modal" tabindex="-1" role="dialog">
+    <!-- confirm -->
+    <div id="modalConfirmNewGame" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog model-sm" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title">Confirm New Game</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            Are you sure you want start a new game? Your existing game will be overwritten.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button id="newGameYes" type="button" class="btn btn-primary" data-dismiss="modal">Yes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Confirm Income -->
+    <div id="modalConfirmIncome" class="modal" tabindex="-1" role="dialog">
         <div class="modal-dialog model-sm" role="document">
           <div class="modal-content">
             <div class="modal-header bg-warning">
-              <h5 class="modal-title">Confirm New Game</h5>
+              <h5 class="modal-title">Confirm Take Income</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
             <div class="modal-body">
-              Are you sure you want start a new game? Your existing game will be overwritten.
+              Are you sure you want the Automa to take income? The Automa will advance to the next era.
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-              <button id="newGameYes" type="button" class="btn btn-primary" data-dismiss="modal">Yes</button>
+              <button id="takeIncomeYes" type="button" class="btn btn-primary" data-dismiss="modal">Yes</button>
             </div>
           </div>
         </div>
-      </div>
-    
-      <div id="modalConfirmIncome" class="modal" tabindex="-1" role="dialog">
-          <div class="modal-dialog model-sm" role="document">
-            <div class="modal-content">
-              <div class="modal-header bg-warning">
-                <h5 class="modal-title">Confirm Take Income</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                Are you sure you want the Automa to take income? The Automa will advance to the next era.
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button id="takeIncomeYes" type="button" class="btn btn-primary" data-dismiss="modal">Yes</button>
-              </div>
-            </div>
+    </div>
+
+    <!-- Game Instructions -->
+    <div id="modalGameInfo" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog model-sm" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title">Instructions</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
-      </div>
+          <div class="modal-body small">
+            <ul>
+              <li>
+                Click <button type="button" class="btn btn-primary btn-sm"><i class="fas fa-plus-circle"></i> Start New Game</button> to start a new game.
+                <ul>
+                  <li>After you confirm, click <button type="button" class="btn btn-primary btn-sm"><i class="fas fa-play-circle"></i> Begin Game</button> and follow the instructions in the popup.</li>
+                  <li>The application will automatically create and maintain the Automa <strong>era, progress deck (decision card pair), and discarded cards</strong> which are displayed in the yellow bar under the main buttons.</li>
+                  <li>During the course of play you will be prompted to take Income Turns for the Automa as necessary.</li>
+                </ul>
+              </li>
+              <li>When the Automa takes an Income Turn click <button type="button" class="btn btn-success btn-sm"><i class="fas fa-dollar-sign"></i> Take Automa Income</button> and follow the instructions in the popup.</li>
+              <li>To take an Advanced Turn with the Automa click <button type="button" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-circle-right"></i> Take Automa Turn</button></li>
+              <li>View the discard pile by clicking on the number next to Discard in the yellow bar.</li>
+              <li>Review all the cards played across all eras by the Automa by clicking on <em>Show Current Game State</em> link at the bottom of the page.</li>
+            </ul>
 
-      <div id="modalGameInfo" class="modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog model-sm" role="document">
-          <div class="modal-content">
-            <div class="modal-header bg-warning">
-              <h5 class="modal-title">Instructions</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body small">
-              <ul>
-                <li>
-                  Click <button type="button" class="btn btn-primary btn-sm"><i class="fas fa-plus-circle"></i> Start New Game</button> to start a new game.
-                  <ul>
-                    <li>After you confirm, click <button type="button" class="btn btn-primary btn-sm"><i class="fas fa-play-circle"></i> Begin Game</button> and follow the instructions in the popup.</li>
-                    <li>The application will automatically create and maintain the Automa <strong>era, progress deck (decision card pair), and discarded cards</strong> which are displayed in the yellow bar under the main buttons.</li>
-                    <li>During the course of play you will be prompted to take Income Turns for the Automa as necessary.</li>
-                  </ul>
-                </li>
-                <li>When the Automa takes an Income Turn click <button type="button" class="btn btn-success btn-sm"><i class="fas fa-dollar-sign"></i> Take Automa Income</button> and follow the instructions in the popup.</li>
-                <li>To take an Advanced Turn with the Automa click <button type="button" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-circle-right"></i> Take Automa Turn</button></li>
-                <li>View the discard pile by clicking on the number next to Discard in the yellow bar.</li>
-                <li>Review all the cards played across all eras by the Automa by clicking on <em>Show Current Game State</em> link at the bottom of the page.</li>
-              </ul>
-
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           </div>
         </div>
+      </div>     
+    </div>
+
+    <!-- Start Game -->
+    <div id="modalBeginGame" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog model-sm" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title">Start Game</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>
+              <div class="font-weight-bold col-12">What is the Automa's favorite track?</div>
+
+              <button type="button" class="btn btn-success btn-block col-12" data-dismiss="modal" data-automa-favorite="Science"><img src="images/science.png" class="track-icon" alt="science" /> Science</button>
+              <button type="button" class="btn btn-primary btn-block col-12" data-dismiss="modal" data-automa-favorite="Exploration"><img src="images/exploration.png" class="track-icon" alt="exploration" /> Exploration</button>
+              <button type="button" class="btn btn-danger btn-block col-12" data-dismiss="modal" data-automa-favorite="Military"><img src="images/military.png" class="track-icon" alt="military" /> Military</button>
+              <button type="button" class="btn btn-warning btn-block col-12" data-dismiss="modal" data-automa-favorite="Technology"><img src="images/technology.png" class="track-icon" alt="technology" /> Technology</button>  
+            </p>              
+          </div>
+          <div class="modal-footer">    
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>          
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Optional JavaScript -->
