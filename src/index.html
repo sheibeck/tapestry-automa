@@ -77,17 +77,20 @@
     <main role="main" class="flex-fill">
       <div class="container">
           <div class="row text-center mt-1">
-            <div class="col-12 col-md-4 order-1">
-              <button id="newgame" type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#modalConfirmNewGame"><i class="fas fa-plus-circle"></i> Start New Game</button>
+            <div class="col-6 col-md-3 order-1">
+              <button id="newgame" type="button" class="btn btn-info btn-block" data-toggle="modal" data-target="#modalConfirmNewGame"><i class="fas fa-plus-circle"></i> Start New Game</button>
             </div>         
-            <div class="col-12 col-md-4 my-1 my-md-0 order-2 order-md-3">
-              <button id="takeincome" type="button" class="btn btn-success btn-block" disabled><i class="fas fa-dollar-sign"></i> Take Automa Income</button>
+            <div class="col-6 col-md-3 mt-1 my-md-0 order-3 order-md-3">
+              <button id="takeincome" type="button" class="btn btn-success btn-block" disabled><i class="fas fa-dollar-sign"></i> Income Turn</button>
             </div>
-            <div class="col-12 col-md-4 order-3 order-md-2">
-              <button id="taketurn" type="button" class="btn btn-secondary btn-block" disabled><i class="fas fa-arrow-circle-right"></i> Take Automa Turn</button>
+            <div class="col-6 col-md-3 my-md-0 order-2 order-md-2">
+              <button type="button" id="claim-landmark" class="btn btn-secondary btn-block" data-toggle="modal" data-target="#modalClaimLandmark" disabled><i class="fas fa-home"></i> Claim Landmark</button>
+            </div>          
+            <div class="col-6 col-md-3 mt-1 mt-md-0 order-3 order-md-2">
+              <button id="taketurn" type="button" class="btn btn-primary btn-block" disabled><i class="fas fa-arrow-circle-right"></i> Advanced Turn</button>
             </div>
           </div>
-          <div class="row bg-warning my-2">           
+          <div class="row bg-warning my-2">
             <div class="text-center col-3">Era: <span class="font-italic" id="era">&mdash;</span></div> 
             <div class="text-center col-5">Progress: <span class="font-italic" id="progress">&mdash;</span> (<span class="font-italic text-muted" id="currentcards">&mdash;</span>)</div>            
             <div class="text-center col-4">Discard: <a href="#" class="" id="viewdiscard"><span class="font-italic" id="discard">&mdash;</span></a></div>           
@@ -147,20 +150,29 @@
           </div>
 
           <div id="view-cards" class="row" style="display:none;">
-            <div class="h4 col-12 justify-content-center d-flex"><img id="automa-meeple" src="" alt="automa meeple" class="meeple-icon align-self-center mr-1" /> Automa</div>
-            <div id="automaResult1" class="h6 col-12 text-center text-dark font-italic"></div>
-            <div class="col-12 text-center mb-2">
+            <div class="h4 mb-0 col-12 justify-content-center d-flex">
+              <img id="automa-meeple" src="" alt="automa meeple" class="meeple-icon align-self-center mr-1" /> Automa
+            </div>
+            <div id="automa-board" class="col-12 justify-content-center d-flex  mt-0">
+                
+            </div>
+            <div id="automaResult1" class="h6 col-12 text-center text-dark font-italic d-none"></div>
+            <div class="col-12 text-center mb-2 d-none">
                 <img src="images/right-arrow.png" alt="right arrow" />
             </div>
-            <div id="automaResult2" class="d-flex col-12 justify-content-center">                   
+            <div id="automaResult2" class="col-12 justify-content-center d-flex">                   
             </div>
-            <div class="col-12 text-center mt-2">
+            <div class="col-12 text-center mt-2 d-none">
               <img src="images/left-arrow.png" alt="left arrow" />
             </div>
-            <div class="h4 col-12 justify-content-center d-flex mt-3"><img id="shadowempire-meeple" src="" alt="shadow empire meeple" class="meeple-icon align-self-center mr-1" /> Shadow Empire</div>
-            <div id="shadowEmpireResult" class="h6 col-12 text-center text-dark font-italic"></div>
+            <div class="h4 mb-0 col-12 justify-content-center d-flex mt-3">
+              <img id="shadowempire-meeple" src="" alt="shadow empire meeple" class="meeple-icon align-self-center mr-1" /> Shadow Empire            
+            </div>            
+            <div id="shadow-board" class="col-12 justify-content-center d-flex mt-0">
+                  
             </div>
-
+            <div id="shadowEmpireResult" class="h6 col-12 text-center text-dark font-italic d-none"></div>
+            </div>
             <hr />
             <div class="d-flex col-12 justify-content-center mt-2">
               <img id="income" src="images/income.png" alt="income" class="mx-2 align-self-center" style="display:none;" />
@@ -294,14 +306,59 @@
             <p>
               <div class="font-weight-bold col-12">What is the Automa's favorite track?</div>
 
-              <button type="button" class="btn btn-success btn-block col-12" data-dismiss="modal" data-automa-favorite="Science"><img src="images/science.png" class="track-icon" alt="science" /> Science</button>
-              <button type="button" class="btn btn-primary btn-block col-12" data-dismiss="modal" data-automa-favorite="Exploration"><img src="images/exploration.png" class="track-icon" alt="exploration" /> Exploration</button>
-              <button type="button" class="btn btn-danger btn-block col-12" data-dismiss="modal" data-automa-favorite="Military"><img src="images/military.png" class="track-icon" alt="military" /> Military</button>
-              <button type="button" class="btn btn-warning btn-block col-12" data-dismiss="modal" data-automa-favorite="Technology"><img src="images/technology.png" class="track-icon" alt="technology" /> Technology</button>  
+              <button type="button" class="btn btn-success btn-block col-12" data-dismiss="modal" data-automa-favorite="science"><img src="images/science.png" class="track-icon" alt="science" /> Science</button>
+              <button type="button" class="btn btn-primary btn-block col-12" data-dismiss="modal" data-automa-favorite="exploration"><img src="images/exploration.png" class="track-icon" alt="exploration" /> Exploration</button>
+              <button type="button" class="btn btn-danger btn-block col-12" data-dismiss="modal" data-automa-favorite="military"><img src="images/military.png" class="track-icon" alt="military" /> Military</button>
+              <button type="button" class="btn btn-warning btn-block col-12" data-dismiss="modal" data-automa-favorite="technology"><img src="images/technology.png" class="track-icon" alt="technology" /> Technology</button>  
             </p>              
           </div>
           <div class="modal-footer">    
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>          
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Claim Landmark -->
+    <div id="modalClaimLandmark" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog model-sm" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title">Start Game</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+
+          </div>
+          <div class="modal-footer">    
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>          
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- New Favorite -->
+    <div id="modalNewFavorite" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog model-sm" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title">Check For New Favorite</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div>
+              Is there a token further along on the Automa's favorite track? <button class="btn btn-primary" type="button" data-new-favorite="automa">Yes</button>
+            </div>
+            <div>
+                Is there a token further along on the Shadow Empire's favorite track? <button class="btn btn-primary" type="button" data-new-favorite="shadowempire">Yes</button>
+            </div>
+          </div>
+          <div class="modal-footer">    
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>          
           </div>
         </div>
       </div>

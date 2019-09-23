@@ -1,7 +1,7 @@
-const science = 'Science';
-const technology = 'Technology';
-const military = 'Military';
-const exploration = 'Exploration';
+const science = 'science';
+const technology = 'technology';
+const military = 'military';
+const exploration = 'exploration';
 
 const scienceDie = [
     science,

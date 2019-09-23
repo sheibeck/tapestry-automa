@@ -1,4 +1,6 @@
-import * as asset from "./assets.js"
+import * as asset from "./assets.js";
+import * as gamestate from "./gamestate.js";
+import * as helper from "./helper.js";
 
 export function formatCardLogPair(leftCard, rightCard) {
     let pair = `<div class="row mt-1">`;
@@ -35,4 +37,29 @@ export function formatCardLogItem(card, isLeftCard) {
             </div>                    
         </div>
     </div>`;
+}
+
+export function formatBoardState(boardState, favorite) {
+    return `(
+        <div class="mr-2">${helper.getTrackIcon("favorite")}:<img src="images/${favorite}.png" class="track-icon" alt="favorite track" /></div>
+        <div class="mx-2">${helper.getTrackIcon("military")}: ${boardState.military}</div>
+        <div class="mx-2">${helper.getTrackIcon("exploration")}: ${boardState.exploration}</div>
+        <div class="mx-2">${helper.getTrackIcon("science")}: ${boardState.science}</div>
+        <div class="ml-2">${helper.getTrackIcon("technology")}: ${boardState.technology}</div>
+    )`;
+}
+
+export function drawClaimLandmark() {
+    let landmarks = gamestate.automaState.landmarks;
+    let html = "";
+    for(var trackName in landmarks) {
+        html += `<div class="h5">${helper.getTrackIcon(trackName)} ${helper.snakeToCamel(trackName)}</div><div>`;       
+        let btnColor = helper.getTrackColor(trackName);
+        for (const key of Object.keys(landmarks[trackName])) {           
+            html += `<button type="button" class="btn btn-${btnColor} btn-block" ${landmarks[trackName][key].claimed ? "disabled" : ""} data-claim-landmark="${trackName}|${key}">${landmarks[trackName][key].claimed ? "Un-Claim" : "Claim"} ${landmarks[trackName][key].name}</button>`;
+        }
+       
+        html += "</div>";
+    }
+    return html;
 }

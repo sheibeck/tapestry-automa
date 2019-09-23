@@ -135,7 +135,7 @@ function drawCards(numCards) {
     };
 }
 
-function shuffle(array) {   
+export function shuffle(array) {   
     var currentIndex = array.length, temporaryValue, randomIndex;
     
     // While there remain elements to shuffle...
@@ -166,39 +166,24 @@ export function getCardDetails(id) {
 function displayAutomaResult(cards) {    
     //clear the last result
     clearTurnResult();
+   
+    dom.setElementHtml(dom.resultAutoma1, getTrackImage(cards.leftcard.automatrack));
+    dom.setElementHtml(dom.resultShadowEmpire, getTrackImage(cards.leftcard.shadowtrack));
 
-    //get the left card details
-    let leftcard = getCardDetails(cards[0]);
-    let rightcard = getCardDetails(cards[1]);
+    dom.setElementHtml(dom.resultAutoma2, "");
+    let htmlOut = "";
+    htmlOut += `<img src="${asset.IconFavorite}" alt="favorite" class="mx-2 order-${cards.rightcard.favorite}" />`;
+    htmlOut += `<img src="${asset.IconMilitary}" alt="military" class="mx-2 order-${cards.rightcard.military}" />`;
+    htmlOut += `<img src="${asset.IconScience}" alt="science" class="mx-2 order-${cards.rightcard.science}" />`;
+    htmlOut += `<img src="${asset.IconExploration}" alt="exploration" class="mx-2 order-${cards.rightcard.exploration}" />`;
+    htmlOut += `<img src="${asset.IconTechnology}" alt="technology" class="mx-2 order-${cards.rightcard.technology}" />`;
+    dom.setElementHtml(dom.resultAutoma2, htmlOut);
 
-    //update the ui
-    for(let position = 0; position < gamestate.proxyAutomaState.currentCards.length; position++) {
-        let card = gamestate.proxyAutomaState.currentCards[position];
-        
-        switch (position)
-        {
-            case 0:
-                dom.setElementHtml(dom.resultAutoma1, getTrackImage(leftcard.automatrack));
-                dom.setElementHtml(dom.resultShadowEmpire, getTrackImage(leftcard.shadowtrack));
-                break;
-
-            default:
-                
-                dom.setElementHtml(dom.resultAutoma2, "");
-                let htmlOut = "";
-                if (rightcard.favorite > 0) htmlOut += `<img src="${asset.IconFavorite}" alt="favorite" class="mx-2 order-${rightcard.favorite}" />`;
-                if (rightcard.military > 0) htmlOut += `<img src="${asset.IconMilitary}" alt="military" class="mx-2 order-${rightcard.military}" />`;
-                if (rightcard.science > 0) htmlOut += `<img src="${asset.IconScience}" alt="science" class="mx-2 order-${rightcard.science}" />`;
-                if (rightcard.exploration > 0) htmlOut += `<img src="${asset.IconExploration}" alt="exploration" class="mx-2 order-${rightcard.exploration}" />`;
-                if (rightcard.technology > 0) htmlOut += `<img src="${asset.IconTechnology}" alt="technology" class="mx-2 order-${rightcard.technology}" />`;
-                dom.setElementHtml(dom.resultAutoma2, htmlOut);
-
-                dom.showElement(dom.incomeResult, leftcard.income ? true : false);
-                dom.showElement(dom.toppleResult, rightcard.topple ? true : false);                
-                dom.showElement(dom.conquerTieBreakerResult, true);
-                dom.setImageSrc(dom.conquerTieBreakerResult, `images/conquer-tiebreaker-${rightcard.conquertiebreaker}.png`);                
-        }
-    }    
+    dom.showElement(dom.incomeResult, cards.leftcard.income ? true : false);
+    dom.showElement(dom.toppleResult, cards.rightcard.topple ? true : false);                
+    dom.showElement(dom.conquerTieBreakerResult, true);
+    dom.setImageSrc(dom.conquerTieBreakerResult, `images/conquer-tiebreaker-${cards.rightcard.conquertiebreaker}.png`);                
+  
     updateAutomaStateUI();
 }
 
@@ -242,6 +227,40 @@ export function startGame() {
     
     // clear any current cards
     gamestate.proxyAutomaState.currentCards = [];
+    
+    // reset the tracks
+    gamestate.proxyAutomaBoard.military = 0;
+    gamestate.proxyAutomaBoard.exploration = 0;
+    gamestate.proxyAutomaBoard.technology = 0;
+    gamestate.proxyAutomaBoard.science = 0;
+     
+    gamestate.proxyShadowEmpireBoard.military = 0;
+    gamestate.proxyShadowEmpireBoard.exploration = 0;
+    gamestate.proxyShadowEmpireBoard.technology = 0;
+    gamestate.proxyShadowEmpireBoard.science = 0;   
+
+    gamestate.proxyAutomaState.landmarks = {
+        military : {
+            0: { name: "Barracks", claimed: false },
+            1: { name: "Tank Factory", claimed: false },
+            2: { name: "Fusion Reactor", claimed: false },
+        },
+        science : {
+            0: { name: "Apothecary", claimed: false },
+            1: { name: "Academy", claimed: false},
+            2: { name: "Laboratory", claimed: false },
+        },
+        exploration : {
+            0: { name: "Lighthouse", claimed: false },
+            1: { name: "Train Station", claimed: false },
+            2: { name: "Launch Pad", claimed: false },
+        },
+        technology : {
+            0: { name: "Forge", claimed: false },
+            1: { name: "Rubber Works", claimed: false },
+            2: { name: "Tech Hub", claimed: false },          
+        }
+    }
 
     // clear the last game review 
     gamestate.proxyAutomaState.gameReview = {
@@ -264,6 +283,8 @@ export function startGame() {
     gamestate.setShadowEmpireInitialFavorite();
     updateAutomaStateUI();
     clearTurnResult();
+
+    dom.disableElement(dom.btnClaimLandmark, false);
 
     dom.showElement(dom.viewsetup, false);
     dom.showElement(dom.viewcards, true);        
@@ -292,7 +313,7 @@ export function takeAutomaTurn() {
 
         //shuffle the two drawn cards so we lay them down randomly
         shuffle(gamestate.proxyAutomaState.currentCards);
-        displayAutomaResult(gamestate.proxyAutomaState.currentCards);        
+        displayAutomaResult(gamestate.getDecisionPair(false));        
 
         console.log(gamestate.proxyAutomaState);
 
@@ -347,6 +368,9 @@ export function takeIncomeTurn() {
 
         clearTurnResult();
         updateAutomaStateUI();        
+
+        //check for a new favorite track
+        checkForNewFavorite();
     }
 
     //reset the app state so we know we are no longer in an income turn
@@ -355,6 +379,17 @@ export function takeIncomeTurn() {
     //enable/disable buttons
     dom.disableElement(dom.btnTakeTurn, false);
     dom.disableElement(dom.btnConfirmTakeIncome, true); 
+}
+
+function checkForNewFavorite(faction) {    
+    if (gamestate.isTrackComplete(gamestate.enumFaction.automa, gamestate.getFavoriteTrack(gamestate.enumFaction.automa)))
+    {
+        setNewFavorite(faction);
+    }
+}
+
+function setNewFavorite(faction) {
+    decision.nonFinishedClosestToLandmarkOrEnd(faction, gamestate.getDecisionPair(true));
 }
 
 export function setupNewGame() {
@@ -371,6 +406,7 @@ export function setupNewGame() {
 
     dom.disableElement(dom.btnTakeTurn, true);
     dom.disableElement(dom.btnConfirmTakeIncome, true);  
+    dom.disableElement(dom.btnClaimLandmark, true);
 }
 
 export function showDiscardPile() {
