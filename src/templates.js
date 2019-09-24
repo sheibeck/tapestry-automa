@@ -69,7 +69,7 @@ export function drawClaimLandmark() {
                     tierDisplay = "IV";
                     break;
             }           
-            html += `<button type="button" class="btn btn-${btnColor} btn-block" data-claim-landmark="${trackName}|${key}">(Tier ${tierDisplay}) ${landmarks[trackName][key].claimed ? "Un-Claim" : "Claim"} ${landmarks[trackName][key].name}</button>`;
+            html += `<button type="button" class="btn btn-${landmarks[trackName][key].claimed ? "secondary" : btnColor} btn-block" data-claim-landmark="${trackName}|${key}">${landmarks[trackName][key].claimed ? "Un-Claim" : "Claim"} ${landmarks[trackName][key].name} (Tier ${tierDisplay})</button>`;
             tier++;
         }
        

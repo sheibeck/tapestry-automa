@@ -66,9 +66,29 @@ $('#modalClaimLandmark').on('show.bs.modal', function (e) {
 });
 
 //display updated favorites
+$('#modalNewFavorite').on('show.bs.modal', function (e) {
+    var modal = $(this);    
+    let body = modal.find('.modal-body')
+
+    var message = `<div>Are you further along the <strong>${helper.getTrackIcon(gamestate.getAutomaFavoriteTrack())} ${gamestate.getAutomaFavoriteTrack().toUpperCase()}</strong> track than the Automa is? <button class="btn btn-secondary btn-sm" type="button" data-new-favorite="automa">Yes</button></div>`;
+    message += `<div class="mt-5">Are you further along the ${helper.getTrackIcon(gamestate.getShadowEmpireFavoriteTrack())} ${gamestate.getShadowEmpireFavoriteTrack().toUpperCase()} track than the Shadow Empire is? <button class="btn btn-secondary btn-sm" type="button" data-new-favorite="shadowempire">Yes</button></div>`;
+
+    //if the shadow empire is further along than automa on the automa's favorite track
+    if (gamestate.proxyShadowEmpireBoard[gamestate.getAutomaFavoriteTrack()] >  gamestate.proxyShadowEmpireBoard[gamestate.getAutomaFavoriteTrack()]) {
+        app.setNewFavorite(gamestate.enumFaction.shadowempire);
+    }
+
+    //if the automa is further along than shadow empire on the shadow empire's favorite track
+    if (gamestate.proxyAutomaBoard[gamestate.getShadowEmpireFavoriteTrack()] >  gamestate.proxyShadowEmpireBoard[gamestate.getShadowEmpireFavoriteTrack()]) {
+        app.setNewFavorite(gamestate.enumFaction.shadowempire);
+    }
+
+    body.html(message);
+});
+
 $('#modalNewFavorite').on('hidden.bs.modal', function (e) {
-    var msgFav = `<div class="text-center">The Automa's favorite is :</div> <div class="d-flex justify-content-center font-weight-bold mt-2">${helper.getTrackIcon(gamestate.getAutomaFavoriteTrack())} ${helper.snakeToCamel(gamestate.getAutomaFavoriteTrack())}</div>`;
-    msgFav += `<div class="text-center mt-5">The Shadow Empires's favorite is :</div> <div class="d-flex justify-content-center font-weight-bold mt-2">${helper.getTrackIcon(gamestate.getShadowEmpireFavoriteTrack())} ${helper.snakeToCamel(gamestate.getShadowEmpireFavoriteTrack())}</div>`;
+    var msgFav = `<div class="text-center">The Automa's favorite is :</div> <div class="d-flex justify-content-center font-weight-bold mt-2">${helper.getTrackIcon(gamestate.getAutomaFavoriteTrack())} ${gamestate.getAutomaFavoriteTrack().toUpperCase()}</div>`;
+    msgFav += `<div class="text-center mt-5">The Shadow Empires's favorite is :</div> <div class="d-flex justify-content-center font-weight-bold mt-2">${helper.getTrackIcon(gamestate.getShadowEmpireFavoriteTrack())} ${gamestate.getShadowEmpireFavoriteTrack().toUpperCase()}</div>`;
     app.gameMessage(msgFav);
 });
 

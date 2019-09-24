@@ -1,7 +1,8 @@
 import * as dom from "./elems.js";
 import * as dice from "./dice.js";
-import { formatBoardState } from "./templates.js";
+import { formatBoardState, drawClaimLandmark } from "./templates.js";
 import * as helper from "./helper.js";
+
 
 export const enumFaction = {
     automa: 'automa',
@@ -254,31 +255,36 @@ export function setAutomaFavoriteTrack(fav) {
 }
 
 export function advanceOnTrack(faction, track, decision) {
-    let trackPosition = 0;
-    switch(faction) {
-        case enumFaction.automa:
-            proxyAutomaBoard[track]++;
-            trackPosition = proxyAutomaBoard[track];
-            break;
+    if (!isTrackComplete(faction, track)) {
+        let trackPosition = 0;
+        switch(faction) {
+            case enumFaction.automa:            
+                proxyAutomaBoard[track]++;
+                trackPosition = proxyAutomaBoard[track];
+                break;
 
-        case enumFaction.shadowempire:
-            proxyShadowEmpireBoard[track]++;  
-            trackPosition = proxyShadowEmpireBoard[track];           
-            break;
-    }
-         
-    let message = `<div class="text-center">${getFactionLabel(faction)} advances 1 space on the</div> <div class="font-weight-bold text-center">${helper.getTrackIcon(track)} ${track.toUpperCase()} track.</div>`;
-
-    if (faction === enumFaction.automa) {
-        message += gainTrackBenefit(track, trackPosition, decision);
-    } else {
-        let seLandmarkClaim = checkForLandmarkClaim(trackPosition, track);
-        if (seLandmarkClaim.length > 0) {
-            message += `<div class="small text-center mb-4">${seLandmarkClaim}</div>`;
+            case enumFaction.shadowempire:
+                proxyShadowEmpireBoard[track]++;  
+                trackPosition = proxyShadowEmpireBoard[track];           
+                break;
         }
-    }
+            
+        let message = `<div class="text-center">${getFactionLabel(faction)} advances 1 space on the</div> <div class="font-weight-bold text-center">${helper.getTrackIcon(track)} ${track.toUpperCase()} track.</div>`;
 
-    return message;
+        if (faction === enumFaction.automa) {
+            message += gainTrackBenefit(track, trackPosition, decision);
+        } else {
+            let seLandmarkClaim = checkForLandmarkClaim(trackPosition, track);
+            if (seLandmarkClaim.length > 0) {
+                message += `<div class="small text-center mb-4">${seLandmarkClaim}</div>`;
+            }
+        }
+
+        return message;
+    }
+    else {
+        return `<div class="text-center">${getFactionLabel(faction)} has completed the <span class="font-weight-bold text-center">${helper.getTrackIcon(track)} ${track.toUpperCase()}</span> and does not advance.</div>`
+    }
 }
 
 function gainTrackBenefit(track, position, decision) {
@@ -334,17 +340,20 @@ function gainTrackBenefit(track, position, decision) {
 
 function checkForLandmarkClaim(position, track) {
     let message = "";
-    //check for landmark claim
-    if (position == 4 || position == 7 || position == 10) {
-        let tier = "I";
-        switch(position) {
-            case 4: tier = "II"; break;
-            case 7: tier = "III"; ; break;
-            case 12: tier = "IV"; break;
-        }
-        message += `<div>The Automa gains the Tier ${tier} ${helper.snakeToCamel(track)} landmark if it's available.</div>`;
+    let landMarkPosition = 0;
+    let isLandMarkPosition = false;
+    let tier = "I";
+    switch(position) {        
+        case 4: landMarkPosition=0; isLandMarkPosition=true; tier = "II"; break;
+        case 7: landMarkPosition=1; isLandMarkPosition=true; tier = "III"; break;
+        case 12: landMarkPosition=2; isLandMarkPosition=true; tier = "IV"; break;
+    } 
+    //if this landmark has no yet been claimed, show a message to remind the user to go claim it
+    if (isLandMarkPosition && !automaState.landmarks[track][landMarkPosition].claimed)
+    {
+        //check for landmark claim                 
+        message += `<div>The Automa gains the Tier ${tier} ${helper.snakeToCamel(track)} landmark.</div>`;
     }
-
     return message;
 }
 
@@ -403,8 +412,10 @@ export function claimLandMark(landmark, target) {
     //toggle the claim
     proxyAutomaState.landmarks[track][building].claimed = !proxyAutomaState.landmarks[track][building].claimed;
 
-    if (target) {            
-        target.innerHTML = `${proxyAutomaState.landmarks[track][building].claimed ? "Un-" : ""}Claim ${proxyAutomaState.landmarks[track][building].name}`;
+    if (target) {        
+        let modalHtml = drawClaimLandmark();
+        let elemLandMarks = $('.modal-body', '#modalClaimLandmark');
+        elemLandMarks.html(modalHtml);
     }
 
     console.log(`${proxyAutomaState.landmarks[track][building].claimed ? "" : "Un-"}Claim Landmark: ${proxyAutomaState.landmarks[track][building].name}`);
