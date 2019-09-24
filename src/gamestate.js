@@ -204,7 +204,7 @@ let shadowBoardHandler = {
 };
 export const proxyShadowEmpireBoard = new Proxy(automaState.tracks.shadowempire, shadowBoardHandler);
 
-function getShadowEmpireFavoriteTrack() {
+export function getShadowEmpireFavoriteTrack() {
     return proxyAutomaState.favorites.shadowempire;    
 }
 
@@ -222,16 +222,18 @@ function getFactionLabel(faction) {
 
 
 export function setShadowEmpireInitialFavorite() {
-    setShadowEmpireFavoriteTrack(dice.rollScience());
-    while(getShadowEmpireFavoriteTrack().toLowerCase() == getAutomaFavoriteTrack().toLowerCase()) {
-        setShadowEmpireFavoriteTrack(dice.rollScience());
+    var roll = dice.rollScience();
+    setShadowEmpireFavoriteTrack();
+    while(roll == getAutomaFavoriteTrack().toLowerCase()) {
+        roll = dice.rollScience();
     }
+    setShadowEmpireFavoriteTrack(roll);
+    app.gameMessage(`<div class="text-center">The Shadow Empire's favorite track is now:</div> <div class="d-flex justify-content-center font-weight-bold mt-2">${helper.getTrackIcon(roll)} ${helper.snakeToCamel(roll)}</div>`);
 }
 
 export function setShadowEmpireFavoriteTrack(fav) {
     proxyAutomaState.favorites.shadowempire = fav;
-    updateBoardInformation(enumFaction.shadowempire);
-    app.gameMessage(`The Shadow Empire's favorite track is now: <div class="d-flex justify-content-center font-weight-bold">${helper.getTrackIcon(fav)} ${helper.snakeToCamel(fav)}</div>`);
+    updateBoardInformation(enumFaction.shadowempire);    
 }
 
 export function getFavoriteTrack(faction) {
@@ -242,17 +244,16 @@ export function getFavoriteTrack(faction) {
     }
 }
 
-function getAutomaFavoriteTrack() {
+export function getAutomaFavoriteTrack() {
     return proxyAutomaState.favorites.automa;
 }
 
 export function setAutomaFavoriteTrack(fav) {
     proxyAutomaState.favorites.automa = fav;
-    updateBoardInformation(enumFaction.automa);
-    app.gameMessage("The Automa's favorite track is now: " + fav);
+    updateBoardInformation(enumFaction.automa);    
 }
 
-export function advanceOnTrack(faction, track) {
+export function advanceOnTrack(faction, track, decision) {
     let trackPosition = 0;
     switch(faction) {
         case enumFaction.automa:
@@ -269,13 +270,18 @@ export function advanceOnTrack(faction, track) {
     let message = `<div class="text-center">${getFactionLabel(faction)} advances 1 space on the</div> <div class="font-weight-bold text-center">${helper.getTrackIcon(track)} ${track.toUpperCase()} track.</div>`;
 
     if (faction === enumFaction.automa) {
-        message += gainTrackBenefit(track, trackPosition);
+        message += gainTrackBenefit(track, trackPosition, decision);
+    } else {
+        let seLandmarkClaim = checkForLandmarkClaim(trackPosition, track);
+        if (seLandmarkClaim.length > 0) {
+            message += `<div class="small text-center mb-4">${seLandmarkClaim}</div>`;
+        }
     }
 
     return message;
 }
 
-function gainTrackBenefit(track, position) {
+function gainTrackBenefit(track, position, decision) {
     let benefits = trackBenefits[track][position];
     let message = `<div class="small text-center mb-4"><em>Benefits:</em> N/A`;
 
@@ -291,21 +297,22 @@ function gainTrackBenefit(track, position) {
                 break;
 
             case enumBenefit.conquer:
-                benefitText +=  "<div>The Automa <strong>Conquers</strong>.</div>";
+                let topple = decision.rightcard.topple ? " and Topples" : "";
+                benefitText +=  `<div>The Automa <strong>Conquers${topple}</strong>.</div>`;
                 break;
 
             case enumBenefit.sciencediex:                
                 let rollSciX = dice.rollScience();
-                proxyAutomaBoard[rollSciX.toLowerCase]++;
+                proxyAutomaBoard[rollSciX.toLowerCase()]++;
                 benefitText +=  `<div>The Automa advances 1 space on the ${helper.getTrackIcon(rollSciX)} <strong>${rollSciX.toUpperCase()}</strong> track with no benefit.</div>`;
                 break;
 
             case enumBenefit.sciencedie:
                 let rollSci = dice.rollScience();
                 proxyAutomaBoard[rollSci.toLowerCase()]++;
-                let rollPosition = proxyAutomaBoard[roll.toLowerCase()];
-                let sciMessage = `<div>The Automa advances 1 space on the ${helper.getTrackIcon(rollSciX)} <strong> ${rollSci.toUpperCase()}</strong> track</div>`;
-                gainTrackBenefit(rollSci.toLowerCase(), rollPosition);
+                let rollPosition = proxyAutomaBoard[rollSci.toLowerCase()];
+                let sciMessage = `<div>The Automa advances 1 space on the ${helper.getTrackIcon(rollSci)} <strong> ${rollSci.toUpperCase()}</strong> track</div>`;
+                gainTrackBenefit(rollSci, rollPosition, decision);
                 benefitText += sciMessage;
                 break;
 
@@ -319,6 +326,14 @@ function gainTrackBenefit(track, position) {
         message = message.replace("N/A", benefitText);
     }
 
+    message += checkForLandmarkClaim(position, track);
+
+    message += "</div>";
+    return message;
+}
+
+function checkForLandmarkClaim(position, track) {
+    let message = "";
     //check for landmark claim
     if (position == 4 || position == 7 || position == 10) {
         let tier = "I";
@@ -330,7 +345,6 @@ function gainTrackBenefit(track, position) {
         message += `<div>The Automa gains the Tier ${tier} ${helper.snakeToCamel(track)} landmark if it's available.</div>`;
     }
 
-    message += "</div>";
     return message;
 }
 
@@ -351,7 +365,7 @@ export function getDecisionPair(incomeTurnDecision) {
         rightCard = app.getCardDetails(proxyAutomaState.deck[0]);
 
         //then shuffle the progress deck
-        app.shuffle(gamestate.proxyAutomaState.deck);
+        app.shuffle(proxyAutomaState.deck);
 
         console.log("Income turn decision pair:");        
         console.log(leftCard);

@@ -51,12 +51,26 @@ export function formatBoardState(boardState, favorite) {
 
 export function drawClaimLandmark() {
     let landmarks = gamestate.automaState.landmarks;
-    let html = "";
-    for(var trackName in landmarks) {
+    let html = "";    
+    for(var trackName in landmarks) {        
         html += `<div class="h5">${helper.getTrackIcon(trackName)} ${helper.snakeToCamel(trackName)}</div><div>`;       
         let btnColor = helper.getTrackColor(trackName);
-        for (const key of Object.keys(landmarks[trackName])) {           
-            html += `<button type="button" class="btn btn-${btnColor} btn-block" ${landmarks[trackName][key].claimed ? "disabled" : ""} data-claim-landmark="${trackName}|${key}">${landmarks[trackName][key].claimed ? "Un-Claim" : "Claim"} ${landmarks[trackName][key].name}</button>`;
+        let tier = 2;
+        for (const key of Object.keys(landmarks[trackName])) {
+            let tierDisplay = "II";
+            switch(tier) {
+                case 2:
+                    tierDisplay = "II";
+                    break;
+                case 3:
+                    tierDisplay = "III";
+                    break;
+                case 4:
+                    tierDisplay = "IV";
+                    break;
+            }           
+            html += `<button type="button" class="btn btn-${btnColor} btn-block" data-claim-landmark="${trackName}|${key}">(Tier ${tierDisplay}) ${landmarks[trackName][key].claimed ? "Un-Claim" : "Claim"} ${landmarks[trackName][key].name}</button>`;
+            tier++;
         }
        
         html += "</div>";

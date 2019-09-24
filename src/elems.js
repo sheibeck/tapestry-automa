@@ -1,5 +1,6 @@
 import * as gamestate from "./gamestate";
 import * as template from "./templates";
+import * as helper from "./helper"
 
 //dom elements
 export const viewcards = document.getElementById("view-cards");
@@ -30,6 +31,7 @@ document.addEventListener('click', function (event) {
 	if (event.target.hasAttribute('data-automa-favorite')) {
         var favorite = event.target.getAttribute("data-automa-favorite");        
         gamestate.setAutomaFavoriteTrack(favorite);
+        app.gameMessage("The Automa's favorite track is now: " + favorite);
         console.log("Automa favorite track is: " + favorite);
 
         app.startGame();
@@ -45,7 +47,7 @@ document.addEventListener('click', function (event) {
         app.setNewFavorite(faction);        
     }
 
-    else return;    
+    else return;
 
 }, false);
 
@@ -61,6 +63,13 @@ $('#modalClaimLandmark').on('show.bs.modal', function (e) {
     let body = modal.find('.modal-body')
     let modalHtml = template.drawClaimLandmark();
     body.html(modalHtml);
+});
+
+//display updated favorites
+$('#modalNewFavorite').on('hidden.bs.modal', function (e) {
+    var msgFav = `<div class="text-center">The Automa's favorite is :</div> <div class="d-flex justify-content-center font-weight-bold mt-2">${helper.getTrackIcon(gamestate.getAutomaFavoriteTrack())} ${helper.snakeToCamel(gamestate.getAutomaFavoriteTrack())}</div>`;
+    msgFav += `<div class="text-center mt-5">The Shadow Empires's favorite is :</div> <div class="d-flex justify-content-center font-weight-bold mt-2">${helper.getTrackIcon(gamestate.getShadowEmpireFavoriteTrack())} ${helper.snakeToCamel(gamestate.getShadowEmpireFavoriteTrack())}</div>`;
+    app.gameMessage(msgFav);
 });
 
 document.getElementById('takeIncomeYes').addEventListener('click', ()=>{

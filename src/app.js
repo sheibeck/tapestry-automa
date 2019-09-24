@@ -378,18 +378,40 @@ export function takeIncomeTurn() {
 
     //enable/disable buttons
     dom.disableElement(dom.btnTakeTurn, false);
-    dom.disableElement(dom.btnConfirmTakeIncome, true); 
+    dom.disableElement(dom.btnConfirmTakeIncome, true);
 }
 
-function checkForNewFavorite(faction) {    
+function checkForNewFavorite() {
     if (gamestate.isTrackComplete(gamestate.enumFaction.automa, gamestate.getFavoriteTrack(gamestate.enumFaction.automa)))
     {
         setNewFavorite(faction);
     }
+
+    if (gamestate.isTrackComplete(gamestate.enumFaction.shadowempire, gamestate.getFavoriteTrack(gamestate.enumFaction.shadowempire)))
+    {
+        setNewFavorite(faction);
+    }
+
+    $('#modalNewFavorite').modal('show');
 }
 
-function setNewFavorite(faction) {
-    decision.nonFinishedClosestToLandmarkOrEnd(faction, gamestate.getDecisionPair(true));
+export function setNewFavorite(faction) {
+    //choose a new favorite track;
+    let newFavorite = decision.nonFinishedClosestToLandmarkOrEnd(faction, gamestate.getDecisionPair(true), true);    
+
+    switch(faction) {
+        case gamestate.enumFaction.automa:
+            if (gamestate.getAutomaFavoriteTrack() !== newFavorite) {
+                gamestate.setAutomaFavoriteTrack(newFavorite);
+            }
+            break;
+
+        case gamestate.enumFaction.shadowempire:
+            if (gamestate.getShadowEmpireFavoriteTrack() !== newFavorite) {
+                gamestate.setShadowEmpireFavoriteTrack(newFavorite);
+            }
+            break;
+    }
 }
 
 export function setupNewGame() {

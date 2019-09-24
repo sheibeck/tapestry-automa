@@ -48,15 +48,16 @@ function allNonFinishedTracks(faction, decision) {
 
         if (!gamestate.isTrackComplete(faction, track))
         {
-            return gamestate.advanceOnTrack(faction, track);
+            return gamestate.advanceOnTrack(faction, track, decision);
             break;
         }        
     }
 }
 
-export function nonFinishedClosestToLandmarkOrEnd(faction, decision) {
+export function nonFinishedClosestToLandmarkOrEnd(faction, decision, getNewFavorite) {
     let tiebreaker = getTrackTieBreaker(faction, decision);
-    
+    let favoriteTrack = gamestate.getFavoriteTrack(faction);
+
     //get the faction board state we're looking for
     let ft = gamestate.automaState.tracks[faction];
 
@@ -66,54 +67,62 @@ export function nonFinishedClosestToLandmarkOrEnd(faction, decision) {
         return p;
       }, {});
 
-    //of the remaining tracks, fine the shortest distance between 
+    //of the remaining tracks, find the shortest distance between 
     // the nearest available landmark or the end of the track.
 
     //return the first false landmark
     let chosenTrack = null;
     let lowestDistance = 99;
+    let lowestTieBreakerPosition = 99;
     for(let t in availableTracks) { 
-        //iterate over a track that we aren't at the end of       
+        //find the closest available landmark (or the end) for the current track
         let landMarkTrack = gamestate.automaState.landmarks[t];
         let closestLandMark = 12; //end of the track
-        let cm = 0; //clost
-        for ( cm = 0; cm < Object.keys(landMarkTrack).length; cm++) {
-            if (landMarkTrack[cm].claimed === false) {                
+        for ( let cm = 0; cm < Object.keys(landMarkTrack).length; cm++) {
+            if (landMarkTrack[cm].claimed === false) {  
+                switch (cm) {
+                    case 0:
+                        closestLandMark = 4;
+                        break;
+                    case 1:
+                        closestLandMark = 7;
+                        break;
+                    case 2:
+                        closestLandMark = 10;
+                        break;
+                }                      
                 break;
-            }
-            else 
-            {
-                cm++;
             }
         }
 
-        //if we got to the end of the landmarks and they were all claimed
-        //then this track is the same as being at the end       
-        switch (cm) {
-            case 0:
-                closestLandMark = 4;
-                break;
-            case 1:
-                closestLandMark = 7;
-                break;
-            case 2:
-                closestLandMark = 10;
-                break;
-        }        
-
         // get the lowest distance for this track and see if we beat any other tracks
         // f[t] == the current position on this track
-        let currentDistance =  Math.min(12-ft[t], closestLandMark-ft[t]);    
-        if ( ( currentDistance == lowestDistance && tiebreaker[t] < tiebreaker[chosenTrack]) || (currentDistance < lowestDistance ) )
+        let currentDistance =  Math.min(12-ft[t], closestLandMark-ft[t]);  
+        
+        //get the position of this track in the tiebreakers
+        let tieBreakerPosition = 99;
+        for ( let tb = 0; tb < Object.keys(tiebreaker).length; tb++) {            
+            let tieBreakerTrackName = tiebreaker[tb] === "favorite" ? gamestate.getFavoriteTrack(faction) : tiebreaker[tb];
+            if (tieBreakerTrackName === t) {
+                tieBreakerPosition = tb;
+                break;
+            }
+        }      
+      
+        if ( ( currentDistance == lowestDistance && tieBreakerPosition < lowestTieBreakerPosition) || (currentDistance < lowestDistance ) )
         {
             lowestDistance = currentDistance;
+            lowestTieBreakerPosition = tieBreakerPosition;
             chosenTrack = t;
         }
     }
 
-    return gamestate.advanceOnTrack(faction, chosenTrack);
-
-    console.log(availableTracks);
+    if (getNewFavorite === true) {
+        return chosenTrack;
+    }
+    else {
+        return gamestate.advanceOnTrack(faction, chosenTrack, decision);
+    }
 }
 
 function nonFinishedClosestToEnd(faction, decision) {
@@ -137,7 +146,7 @@ function nonFinishedClosestToEnd(faction, decision) {
 
         if (Object.keys(max).find(key => max[key] === track) && !gamestate.isTrackComplete(faction, track))
         {
-            return gamestate.advanceOnTrack(faction, track);
+            return gamestate.advanceOnTrack(faction, track, decision);
             break;
         }
     }
