@@ -21,7 +21,10 @@ const enumBenefit = {
     conquer: "conquer",
     sciencediex: "sciencediex",
     sciencedie: "sciencedie",
-    cleartech: "cleartech"
+    cleartech: "cleartech",
+    physics: "physics",
+    neuroscience: "neuroscience",
+    quantumphysics: "quantumphysics",
 }
 
 const trackBenefits = {
@@ -50,9 +53,9 @@ const trackBenefits = {
         6: [enumBenefit.sciencedie],
         7: [],
         8: [],
-        9: [],
-        10: [],
-        11: [],
+        9: [enumBenefit.physics],
+        10: [enumBenefit.neuroscience],
+        11: [enumBenefit.quantumphysics],
         12: [enumBenefit.sciencediex,enumBenefit.sciencediex,enumBenefit.sciencediex,enumBenefit.sciencediex,enumBenefit.sciencediex]
     },
     exploration: {
@@ -211,8 +214,7 @@ export function getShadowEmpireFavoriteTrack() {
 
 
 //METHODS
-
-function getFactionLabel(faction) {
+export function getFactionLabel(faction) {
     switch(faction) {
         case enumFaction.automa:
             return `<img id="automa-meeple" src="images/meeple-red.png" alt="automa meeple" class="meeple-icon  mr-1" /> Automa`;
@@ -254,30 +256,31 @@ export function setAutomaFavoriteTrack(fav) {
     updateBoardInformation(enumFaction.automa);    
 }
 
-export function advanceOnTrack(faction, track, decision, nobenefit) {
+export function advanceOnTrack(distance, faction, track, decision, nobenefit) {
     if (!isTrackComplete(faction, track)) {
         let trackPosition = 0;
         switch(faction) {
             case enumFaction.automa:            
-                proxyAutomaBoard[track]++;
+                proxyAutomaBoard[track] += distance;
                 trackPosition = proxyAutomaBoard[track];
                 break;
 
             case enumFaction.shadowempire:
-                proxyShadowEmpireBoard[track]++;  
+                proxyShadowEmpireBoard[track] += distance;
                 trackPosition = proxyShadowEmpireBoard[track];           
                 break;
         }
-            
-        let message = `<div class="text-center">${getFactionLabel(faction)} advances 1 space on the</div> <div class="font-weight-bold text-center">${helper.getTrackIcon(track)} ${track.toUpperCase()} track.</div>`;
 
-        if (faction === enumFaction.automa && nobenefit !== true) {            
+        let message = faction === enumFaction.shadowempire ? "<hr />" : "";
+        message += `<div class="text-center mt-4">${getFactionLabel(faction)} ${decision === -1 ? "regresses" : "advances"} 1 space on the</div> <div class="font-weight-bold text-center">${helper.getTrackIcon(track)} ${track.toUpperCase()} track.</div>`;
+
+        if (faction === enumFaction.automa && nobenefit !== true) {           
             message += gainTrackBenefit(track, trackPosition, decision, faction);     
         }
 
         let setLandmarkClaim = checkForLandmarkClaim(trackPosition, track);
         if (setLandmarkClaim.length > 0) {
-            message += `<div class="small text-center mb-4">${setLandmarkClaim}</div>`;
+            message += `<div class="text-center mt-1 mb-4">${setLandmarkClaim}</div>`;
         }
     
         return message;
@@ -289,61 +292,55 @@ export function advanceOnTrack(faction, track, decision, nobenefit) {
 
 function gainTrackBenefit(track, position, decision, faction) {
     let benefits = trackBenefits[track][position];
-    let message = `<div class="small text-center mb-4"><em>Benefits:</em> N/A`;
-
     let benefitText = "";
     for(let b = 0; b < benefits.length; b++) {
         switch(benefits[b]) {            
             case enumBenefit.tapestrycard:
-                benefitText += "<div>The Automa gains 1 Tapestry card</div>";
+                benefitText += `<div class="text-center mt-1">&bull; The Automa gains 1 Tapestry card</div>`;
                 break;
             
             case enumBenefit.explore:
-                benefitText +=  "<div>The Automa <strong>Explores</strong>.</div>";
+                benefitText +=  `<div class="text-center mt-1">&bull; The Automa <strong>Explores</strong>.</div>`;
                 break;
 
             case enumBenefit.conquer:
                 let topple = decision.rightcard.topple ? " and Topples" : "";
-                benefitText +=  `<div>The Automa <strong>Conquers${topple}</strong>.</div>`;
+                benefitText +=  `<div class="text-center mt-1">&bull; The Automa <strong>Conquers${topple}</strong>.</div>`;
                 break;
 
             case enumBenefit.sciencediex:
                 let rollSciX = dice.rollScience();
-                benefitText += advanceOnTrack(faction, rollSciX, decision, true);
-
-                /*
-                proxyAutomaBoard[rollSciX.toLowerCase()]++;                
-                benefitText += `<div>The Automa advances 1 space on the ${helper.getTrackIcon(rollSciX)} <strong>${rollSciX.toUpperCase()}</strong> track with no benefit.</div>`;
-                benefitText += checkForLandmarkClaim(position, rollSciX);
-                */
+                benefitText += advanceOnTrack(1, faction, rollSciX, decision, true);               
                 break;
 
             case enumBenefit.sciencedie:
                 let rollSci = dice.rollScience();
-                benefitText += advanceOnTrack(faction, rollSci, decision);
-                
-                /*
-                proxyAutomaBoard[rollSci.toLowerCase()]++;
-                let rollPosition = proxyAutomaBoard[rollSci.toLowerCase()];
-                let sciMessage = `<div>The Automa advances 1 space on the ${helper.getTrackIcon(rollSci)} <strong> ${rollSci.toUpperCase()}</strong> track</div>`;
-                gainTrackBenefit(rollSci, rollPosition, decision);                
-                benefitText += sciMessage;
-                benefitText += checkForLandmarkClaim(position, rollSci);
-                */
+                benefitText += advanceOnTrack(1, faction, rollSci, decision);                
                 break;
 
             case enumBenefit.cleartech:
-                benefitText +=  "<div>The Automa <strong>clears the Technology cards</strong>.</div>";
+                benefitText +=  `<div class="text-center mt-1">&bull; The Automa <strong>clears the Technology cards</strong>.</div>`;
                 break;
             
-        }
-    }
-    if (benefitText.length > 0) {
-        message = message.replace("N/A", benefitText);
-    }    
+            case enumBenefit.physics:
+                let rollPhyics = dice.rollScienceDecision([enumTrack.military, enumTrack.technology, enumTrack.exploration]);
+                benefitText += advanceOnTrack(1, faction, rollPhyics, decision, true);
+                break;
 
-    message += "</div>";
-    return message;
+            case enumBenefit.neuroscience:
+                let rollNeuroScience = dice.rollScienceDecision([enumTrack.military, enumTrack.technology]);
+                benefitText += advanceOnTrack(-1, faction, rollNeuroScience, decision, true);
+                break;
+
+            case enumBenefit.quantumphysics:
+                for(let i = 0; i < 2; i++) {
+                    let rollNeuroScience = dice.rollScienceDecision([enumTrack.military, enumTrack.technology, enumTrack.exploration]);
+                    benefitText += advanceOnTrack(-1, faction, rollNeuroScience, decision, true);
+                }
+                break;
+        }
+    }       
+    return benefitText;
 }
 
 function checkForLandmarkClaim(position, track) {
@@ -354,13 +351,13 @@ function checkForLandmarkClaim(position, track) {
     switch(position) {        
         case 4: landMarkPosition=0; isLandMarkPosition=true; tier = "II"; break;
         case 7: landMarkPosition=1; isLandMarkPosition=true; tier = "III"; break;
-        case 12: landMarkPosition=2; isLandMarkPosition=true; tier = "IV"; break;
+        case 10: landMarkPosition=2; isLandMarkPosition=true; tier = "IV"; break;
     } 
     //if this landmark has no yet been claimed, show a message to remind the user to go claim it
     if (isLandMarkPosition && !automaState.landmarks[track][landMarkPosition].claimed)
     {
         //check for landmark claim                 
-        message += `<div>The Automa gains the Tier ${tier} ${helper.snakeToCamel(track)} landmark.</div>`;
+        message += `<div><i class="fas fa-home mr-1"></i>The Automa claims the <b>Tier ${tier} ${helper.getTrackIcon(track)} ${track.toUpperCase()}</b> landmark.</div>`;
     }
     return message;
 }
@@ -399,16 +396,17 @@ export function isTrackComplete(faction, track) {
     return proxyAutomaState.tracks[faction][track] === 12; 
 }
 
-function updateBoardInformation(faction) {
-    console.log(proxyAutomaState.tracks);
+function updateBoardInformation(faction) {    
     switch (faction)
     {
         case enumFaction.automa:
-            dom.setElementHtml(dom.automaBoard, formatBoardState(proxyAutomaState.tracks.automa, proxyAutomaState.favorites.automa));
+            let automaBoardState = formatBoardState(proxyAutomaState.tracks.automa, proxyAutomaState.favorites.automa);
+            dom.setElementHtml(dom.automaBoard, automaBoardState);
             break;
         
         case enumFaction.shadowempire:
-            dom.setElementHtml(dom.shadowBoard, formatBoardState(proxyAutomaState.tracks.shadowempire, proxyAutomaState.favorites.shadowempire));
+            let seBoardState = formatBoardState(proxyAutomaState.tracks.shadowempire, proxyAutomaState.favorites.shadowempire)
+            dom.setElementHtml(dom.shadowBoard, seBoardState);
             break;
     }
 }

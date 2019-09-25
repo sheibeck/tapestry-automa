@@ -21,3 +21,13 @@ const scienceDie = [
 export function rollScience() {
     return scienceDie[Math.floor(Math.random() * scienceDie.length)];
 }
+
+//roll science until you roll something in the matches
+// matches an array of items possibilities
+export function rollScienceDecision(matches) {
+    let roll = rollScience();
+    while(matches.indexOf(roll) === -1) {
+        roll = rollScience();
+    }
+    return roll;
+}

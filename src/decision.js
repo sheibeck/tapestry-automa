@@ -53,13 +53,13 @@ function allNonFinishedTracks(faction, decision) {
 
         if (!gamestate.isTrackComplete(faction, track))
         {
-            return gamestate.advanceOnTrack(faction, track, decision);
+            return gamestate.advanceOnTrack(1, faction, track, decision);
             break;
         }        
     }
 }
 
-export function nonFinishedClosestToLandmarkOrEnd(faction, decision, getNewFavorite) {
+export function nonFinishedClosestToLandmarkOrEnd(faction, decision, returnTrackNameOnly) {
     let tiebreaker = getTrackTieBreaker(faction, decision);
     let favoriteTrack = gamestate.getFavoriteTrack(faction);
 
@@ -84,7 +84,7 @@ export function nonFinishedClosestToLandmarkOrEnd(faction, decision, getNewFavor
         let landMarkTrack = gamestate.automaState.landmarks[t];
         let closestLandMark = 12; //end of the track
         for ( let cm = 0; cm < Object.keys(landMarkTrack).length; cm++) {
-            if (landMarkTrack[cm].claimed === false) {  
+            if (!landMarkTrack[cm].claimed) {  
                 switch (cm) {
                     case 0:
                         closestLandMark = 4;
@@ -122,11 +122,11 @@ export function nonFinishedClosestToLandmarkOrEnd(faction, decision, getNewFavor
         }
     }
 
-    if (getNewFavorite === true) {
+    if (returnTrackNameOnly) {
         return chosenTrack;
     }
     else {
-        return gamestate.advanceOnTrack(faction, chosenTrack, decision);
+        return gamestate.advanceOnTrack(1, faction, chosenTrack, decision);
     }
 }
 
@@ -151,7 +151,7 @@ function nonFinishedClosestToEnd(faction, decision) {
 
         if (Object.keys(max).find(key => max[key] === track) && !gamestate.isTrackComplete(faction, track))
         {
-            return gamestate.advanceOnTrack(faction, track, decision);
+            return gamestate.advanceOnTrack(1, faction, track, decision);
             break;
         }
     }

@@ -53,7 +53,7 @@ export function drawClaimLandmark() {
     let landmarks = gamestate.automaState.landmarks;
     let html = "";    
     for(var trackName in landmarks) {        
-        html += `<div class="h5">${helper.getTrackIcon(trackName)} ${helper.snakeToCamel(trackName)}</div><div>`;       
+        html += `<div class="h5 d-flex flex-row justify-content-center ${trackName !== "military" ? "mt-3" : ""} ">${helper.getTrackIcon(trackName)} ${helper.snakeToCamel(trackName)}</div><div class="d-flex flex-row justify-content-center">`;       
         let btnColor = helper.getTrackColor(trackName);
         let tier = 2;
         for (const key of Object.keys(landmarks[trackName])) {
@@ -69,7 +69,7 @@ export function drawClaimLandmark() {
                     tierDisplay = "IV";
                     break;
             }           
-            html += `<button type="button" class="btn btn-${landmarks[trackName][key].claimed ? "secondary" : btnColor} btn-block" data-claim-landmark="${trackName}|${key}">${landmarks[trackName][key].claimed ? "Un-Claim" : "Claim"} ${landmarks[trackName][key].name} (Tier ${tierDisplay})</button>`;
+            html += `<div class="mx-1"><button type="button" class="btn btn-${landmarks[trackName][key].claimed ? "secondary" : btnColor} btn-block" data-claim-landmark="${trackName}|${key}">${landmarks[trackName][key].claimed ? "Un-Claim" : "Claim"} ${landmarks[trackName][key].name}<br/>(Tier ${tierDisplay})</button></div>`;
             tier++;
         }
        

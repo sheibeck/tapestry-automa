@@ -28,12 +28,11 @@ export const btnClaimLandmark = document.getElementById('claim-landmark');
 //events
 document.addEventListener('click', function (event) {
 	// If the event target doesn't match bail
-	if (event.target.hasAttribute('data-automa-favorite')) {
+	if (event.target.hasAttribute('data-automa-favorite')) {        
         var favorite = event.target.getAttribute("data-automa-favorite");        
         gamestate.setAutomaFavoriteTrack(favorite);
         app.gameMessage("The Automa's favorite track is now: " + favorite);
         console.log("Automa favorite track is: " + favorite);
-
         app.startGame();
     }
 
@@ -71,7 +70,7 @@ $('#modalNewFavorite').on('show.bs.modal', function (e) {
     let body = modal.find('.modal-body')
 
     var message = `<div>Are you further along the <strong>${helper.getTrackIcon(gamestate.getAutomaFavoriteTrack())} ${gamestate.getAutomaFavoriteTrack().toUpperCase()}</strong> track than the Automa is? <button class="btn btn-secondary btn-sm" type="button" data-new-favorite="automa">Yes</button></div>`;
-    message += `<div class="mt-5">Are you further along the ${helper.getTrackIcon(gamestate.getShadowEmpireFavoriteTrack())} ${gamestate.getShadowEmpireFavoriteTrack().toUpperCase()} track than the Shadow Empire is? <button class="btn btn-secondary btn-sm" type="button" data-new-favorite="shadowempire">Yes</button></div>`;
+    message += `<div class="mt-3">Are you further along the ${helper.getTrackIcon(gamestate.getShadowEmpireFavoriteTrack())} ${gamestate.getShadowEmpireFavoriteTrack().toUpperCase()} track than the Shadow Empire is? <button class="btn btn-secondary btn-sm" type="button" data-new-favorite="shadowempire">Yes</button></div>`;
 
     //if the shadow empire is further along than automa on the automa's favorite track
     if (gamestate.proxyShadowEmpireBoard[gamestate.getAutomaFavoriteTrack()] >  gamestate.proxyAutomaBoard[gamestate.getAutomaFavoriteTrack()]) {
@@ -88,7 +87,7 @@ $('#modalNewFavorite').on('show.bs.modal', function (e) {
 
 $('#modalNewFavorite').on('hidden.bs.modal', function (e) {
     var msgFav = `<div class="text-center">The Automa's favorite is :</div> <div class="d-flex justify-content-center font-weight-bold mt-2">${helper.getTrackIcon(gamestate.getAutomaFavoriteTrack())} ${gamestate.getAutomaFavoriteTrack().toUpperCase()}</div>`;
-    msgFav += `<div class="text-center mt-5">The Shadow Empires's favorite is :</div> <div class="d-flex justify-content-center font-weight-bold mt-2">${helper.getTrackIcon(gamestate.getShadowEmpireFavoriteTrack())} ${gamestate.getShadowEmpireFavoriteTrack().toUpperCase()}</div>`;
+    msgFav += `<div class="text-center mt-3">The Shadow Empires's favorite is :</div> <div class="d-flex justify-content-center font-weight-bold mt-2">${helper.getTrackIcon(gamestate.getShadowEmpireFavoriteTrack())} ${gamestate.getShadowEmpireFavoriteTrack().toUpperCase()}</div>`;
     app.gameMessage(msgFav);
 });
 

@@ -19,7 +19,7 @@
     "webpack-merge": "^4.2.2"
   },
   "scripts": {
-    "start": "webpack-dev-server --open --config webpack.local.js",
+    "start": "webpack-dev-server --open --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js",
     "dev": "webpack --config webpack.prod.js"
   }

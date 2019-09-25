@@ -90,7 +90,7 @@ function checkForEarlyIncomeTurn() {
 
     //If the decision deck is now empty and the track card has an income icon, the
     // bots take their income turn and you skip the last step of this procedure.
-    if (gamestate.proxyAutomaState.hand.length == 0 && leftcard.income == true) {               
+    if (gamestate.proxyAutomaState.hand.length === 0 && leftcard.income) {               
         console.log("  TAKE EARLY INCOME");
         gamestate.proxyAutomaState.isIncomeTurn = true;
         dom.disableElement(dom.btnTakeTurn, true);
@@ -348,7 +348,7 @@ export function takeIncomeTurn() {
     if (gamestate.proxyAutomaState.era === 1) 
     {
         gamestate.proxyAutomaState.era++;
-        gameMessage("The automa <strong>Gains 1 Tapestry card</strong>.");
+        gameMessage(`<div class="text-center">${gamestate.getFactionLabel(gamestate.enumFaction.automa)} <strong>Gains 1 Tapestry card</strong>.</div>`);
 
     }
     else {
