@@ -1,4 +1,5 @@
 import * as gamestate from "./gamestate";
+import { era } from "./elems";
 
 
 export function advanceTracks() { 
@@ -22,6 +23,10 @@ function getTrackAdvance(faction) {
         case gamestate.enumFaction.shadowempire:
             track = decision.leftcard.shadowtrack;
             break;            
+    }
+
+    if (!track) {
+        throw(`Error in getTrackAdvance("${faction}") with decision pair: ${decision}`);
     }
 
     switch(track) {

@@ -254,7 +254,7 @@ export function setAutomaFavoriteTrack(fav) {
     updateBoardInformation(enumFaction.automa);    
 }
 
-export function advanceOnTrack(faction, track, decision) {
+export function advanceOnTrack(faction, track, decision, nobenefit) {
     if (!isTrackComplete(faction, track)) {
         let trackPosition = 0;
         switch(faction) {
@@ -271,15 +271,15 @@ export function advanceOnTrack(faction, track, decision) {
             
         let message = `<div class="text-center">${getFactionLabel(faction)} advances 1 space on the</div> <div class="font-weight-bold text-center">${helper.getTrackIcon(track)} ${track.toUpperCase()} track.</div>`;
 
-        if (faction === enumFaction.automa) {
-            message += gainTrackBenefit(track, trackPosition, decision);
-        } else {
-            let seLandmarkClaim = checkForLandmarkClaim(trackPosition, track);
-            if (seLandmarkClaim.length > 0) {
-                message += `<div class="small text-center mb-4">${seLandmarkClaim}</div>`;
-            }
+        if (faction === enumFaction.automa && nobenefit !== true) {            
+            message += gainTrackBenefit(track, trackPosition, decision, faction);     
         }
 
+        let setLandmarkClaim = checkForLandmarkClaim(trackPosition, track);
+        if (setLandmarkClaim.length > 0) {
+            message += `<div class="small text-center mb-4">${setLandmarkClaim}</div>`;
+        }
+    
         return message;
     }
     else {
@@ -287,7 +287,7 @@ export function advanceOnTrack(faction, track, decision) {
     }
 }
 
-function gainTrackBenefit(track, position, decision) {
+function gainTrackBenefit(track, position, decision, faction) {
     let benefits = trackBenefits[track][position];
     let message = `<div class="small text-center mb-4"><em>Benefits:</em> N/A`;
 
@@ -307,19 +307,29 @@ function gainTrackBenefit(track, position, decision) {
                 benefitText +=  `<div>The Automa <strong>Conquers${topple}</strong>.</div>`;
                 break;
 
-            case enumBenefit.sciencediex:                
+            case enumBenefit.sciencediex:
                 let rollSciX = dice.rollScience();
-                proxyAutomaBoard[rollSciX.toLowerCase()]++;
-                benefitText +=  `<div>The Automa advances 1 space on the ${helper.getTrackIcon(rollSciX)} <strong>${rollSciX.toUpperCase()}</strong> track with no benefit.</div>`;
+                benefitText += advanceOnTrack(faction, rollSciX, decision, true);
+
+                /*
+                proxyAutomaBoard[rollSciX.toLowerCase()]++;                
+                benefitText += `<div>The Automa advances 1 space on the ${helper.getTrackIcon(rollSciX)} <strong>${rollSciX.toUpperCase()}</strong> track with no benefit.</div>`;
+                benefitText += checkForLandmarkClaim(position, rollSciX);
+                */
                 break;
 
             case enumBenefit.sciencedie:
                 let rollSci = dice.rollScience();
+                benefitText += advanceOnTrack(faction, rollSci, decision);
+                
+                /*
                 proxyAutomaBoard[rollSci.toLowerCase()]++;
                 let rollPosition = proxyAutomaBoard[rollSci.toLowerCase()];
                 let sciMessage = `<div>The Automa advances 1 space on the ${helper.getTrackIcon(rollSci)} <strong> ${rollSci.toUpperCase()}</strong> track</div>`;
-                gainTrackBenefit(rollSci, rollPosition, decision);
+                gainTrackBenefit(rollSci, rollPosition, decision);                
                 benefitText += sciMessage;
+                benefitText += checkForLandmarkClaim(position, rollSci);
+                */
                 break;
 
             case enumBenefit.cleartech:
@@ -330,9 +340,7 @@ function gainTrackBenefit(track, position, decision) {
     }
     if (benefitText.length > 0) {
         message = message.replace("N/A", benefitText);
-    }
-
-    message += checkForLandmarkClaim(position, track);
+    }    
 
     message += "</div>";
     return message;

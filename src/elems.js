@@ -74,8 +74,8 @@ $('#modalNewFavorite').on('show.bs.modal', function (e) {
     message += `<div class="mt-5">Are you further along the ${helper.getTrackIcon(gamestate.getShadowEmpireFavoriteTrack())} ${gamestate.getShadowEmpireFavoriteTrack().toUpperCase()} track than the Shadow Empire is? <button class="btn btn-secondary btn-sm" type="button" data-new-favorite="shadowempire">Yes</button></div>`;
 
     //if the shadow empire is further along than automa on the automa's favorite track
-    if (gamestate.proxyShadowEmpireBoard[gamestate.getAutomaFavoriteTrack()] >  gamestate.proxyShadowEmpireBoard[gamestate.getAutomaFavoriteTrack()]) {
-        app.setNewFavorite(gamestate.enumFaction.shadowempire);
+    if (gamestate.proxyShadowEmpireBoard[gamestate.getAutomaFavoriteTrack()] >  gamestate.proxyAutomaBoard[gamestate.getAutomaFavoriteTrack()]) {
+        app.setNewFavorite(gamestate.enumFaction.automa);
     }
 
     //if the automa is further along than shadow empire on the shadow empire's favorite track
