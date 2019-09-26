@@ -13,8 +13,9 @@ import * as dom from "./elems.js";
 import * as templates from "./templates.js";
 import * as decision from "./decision.js";
 import * as gamestate from "./gamestate.js";
+import * as dice from "./dice";
 import { cardData } from "./data";
-
+import * as helper from "./helper";
 
 //-------------------------------
 //PRIVATE METHODS
@@ -24,7 +25,7 @@ import { cardData } from "./data";
 const modalMessage = $("#modalGameMessage");
 export function gameMessage(message) {
     $(".modal-body", modalMessage).html(message);
-    modalMessage.modal('show');
+    modalMessage.modal({backdrop: 'static', keyboard: false});
 }
 
 function updateAutomaStateUI() {
@@ -45,7 +46,8 @@ function clearTurnResult() {
 
 
 // add cards to hand
-function addToHand(numCards) {    
+function addToHand(numCards) { 
+    console.log(`Adding ${numCards} to decision deck.`)   
     for(let i = 0; i < numCards; i++) {
         let card = gamestate.proxyAutomaState.deck.pop();
         gamestate.proxyAutomaState.hand.push(card);
@@ -80,7 +82,7 @@ function checkForEarlyIncomeTurn() {
         dom.disableElement(dom.btnTakeTurn, true);
         dom.disableElement(dom.btnConfirmTakeIncome, false);
                         
-        gameMessage("The Automa takes an <strong>Early Income Turn</strong>. Score the Automa and then click the <strong>Take Automa Income</strong> button to start the next era.");    
+        gameMessage("The Automa takes an <strong>Early Income Turn</strong>. Click the <strong>Income Turn</strong> button to start the next era.");    
 
         return true;
     }
@@ -292,7 +294,7 @@ export function takeAutomaTurn() {
         clearTurnResult();
         updateAutomaStateUI();
 
-        gameMessage("The Automa takes an <strong>Income Turn</strong>. Score the Automa and then click the <strong>Take Automa Income</strong> button to start the next era."); 
+        gameMessage("The Automa takes an <strong>Income Turn</strong>. Click the <strong>Income Turn</strong> button to start the next era."); 
         dom.disableElement(dom.btnTakeTurn, true);
         dom.disableElement(dom.btnConfirmTakeIncome, false);
     }
@@ -341,23 +343,6 @@ export function takeIncomeTurn() {
 
     }
     else {
-        discardPlayedCards();
-        
-        //put the discard pile back into the hand and add 2 cards
-        createNewHandFromDiscard();
-
-        //add 2 cards to the automa deck
-        addToHand(2);
-
-        //shuffle the new deck
-        shuffle(gamestate.proxyAutomaState.hand);        
-
-        //increase the automa to the next era
-        gamestate.proxyAutomaState.era++;
-
-        clearTurnResult();
-        updateAutomaStateUI();        
-
         //check for a new favorite track
         checkForNewFavorite();
     }
@@ -370,15 +355,55 @@ export function takeIncomeTurn() {
     dom.disableElement(dom.btnConfirmTakeIncome, true);
 }
 
+
+export function continueIncomeTurn() {
+    let message = "";
+    message += `<div class="text-center">The Automa's favorite is :</div> <div class="d-flex justify-content-center font-weight-bold mt-2">${helper.getTrackIcon(gamestate.getAutomaFavoriteTrack())} ${gamestate.getAutomaFavoriteTrack().toUpperCase()}</div>`;
+    message += `<div class="text-center mt-3">The Shadow Empires's favorite is :</div> <div class="d-flex justify-content-center font-weight-bold mt-2">${helper.getTrackIcon(gamestate.getShadowEmpireFavoriteTrack())} ${gamestate.getShadowEmpireFavoriteTrack().toUpperCase()}</div>`;
+ 
+    //gain civilization bonus
+    message += gainIncomeTurnAdvancement();
+
+    //discard after income turn advancement because the advancement uses
+    // the current set of cards displaying
+    discardPlayedCards();
+
+    //check for any civ bonuses and do it.
+    message += gainIncomeTurnCivilizationBonus();
+    
+    //put the discard pile back into the hand and add 2 cards
+    createNewHandFromDiscard();
+    //add 2 cards to the automa deck
+    var numCardsToAdd = 2;
+    var automaDifficulty = gamestate.getAutomaDifficulty();
+    if ( automaDifficulty === 4) {
+        numCardsToAdd += 2;
+    }
+    addToHand(numCardsToAdd);
+
+    //shuffle the new deck
+    shuffle(gamestate.proxyAutomaState.hand);        
+
+    //increase the automa to the next era
+    gamestate.proxyAutomaState.era++;
+
+    clearTurnResult();
+    updateAutomaStateUI();
+
+    message += `<hr/> <h5 class="text-center">Scoring and Income</h5> <div class="text-center">${gamestate.getFactionLabel(gamestate.enumFaction.automa)} <strong>scores points</strong>.</div><div class="text-center">${gamestate.getFactionLabel(gamestate.enumFaction.automa)} <strong>Gains 1 Tapestry card</strong>.</div>`;
+
+    gameMessage(message);
+}
+
 function checkForNewFavorite() {
     if (gamestate.isTrackComplete(gamestate.enumFaction.automa, gamestate.getFavoriteTrack(gamestate.enumFaction.automa)))
     {
-        setNewFavorite(faction);
+        setNewFavorite(gamestate.enumFaction.automa);
     }
 
     if (gamestate.isTrackComplete(gamestate.enumFaction.shadowempire, gamestate.getFavoriteTrack(gamestate.enumFaction.shadowempire)))
     {
-        setNewFavorite(faction);
+        setNewFavorite(gamestate.enumFaction.shadowempire);
     }
 
     $('#modalNewFavorite').modal('show');
@@ -405,7 +430,24 @@ export function setNewFavorite(faction) {
 
 export function setupNewGame() {
     gamestate.proxyAutomaState.gameStarted = false;
-    gamestate.setAutomaCivilization(null);
+
+    let roll = dice.rollScience();
+    let civ = null;
+    switch(roll) {       
+        case gamestate.enumTrack.science:
+            civ = gamestate.enumAutomaCivilization.conquerers;           
+            break;
+        case gamestate.enumTrack.military:
+            civ = gamestate.enumAutomaCivilization.conquerers;           
+            break;
+        case gamestate.enumTrack.exploration:
+            civ = gamestate.enumAutomaCivilization.explorers;           
+            break;
+        case gamestate.enumTrack.technology:
+            civ = gamestate.enumAutomaCivilization.engineers;           
+            break; 
+    }
+    gamestate.setAutomaCivilization(civ);
     
     dom.showElement(dom.viewsetup, true);
     dom.showElement(dom.viewcards, false);
@@ -456,3 +498,61 @@ export function showGameReview() {
 
     gameMessage(message);
 }
+
+function gainIncomeTurnAdvancement() {
+    let message = "";   
+    if (gamestate.getAutomaDifficulty() > 2) {
+        message += "<h5 class='text-center'>Income Turn Advancement</h5>";
+        for(let faction in gamestate.enumFaction) {
+            for(let track in gamestate.enumTrack) {
+                //use the current decision card pair
+                message += gamestate.advanceOnTrack(1, faction, track, gamestate.getDecisionPair(true));            
+            }
+        }
+    }
+
+    return message ? `<hr /> ${message}` : "";
+}
+
+//gain any bonuses based on the civilization of the automa
+function gainIncomeTurnCivilizationBonus() {    
+    let message = "";
+    if (gamestate.getAutomaDifficulty() > 1) {
+        message += "<h5 class='text-center'>Civilization Bonus</h5>";
+        switch(gamestate.getAutomaCivilization()) {       
+            case gamestate.enumAutomaCivilization.conquerers:
+                
+                break;
+            case gamestate.enumAutomaCivilization.scientists:
+                switch(gamestate.getEra()) {
+                    case 3:
+                    case 4:
+                    case 5:
+                        let roll = dice.rollScience();
+                        message += gamestate.advanceOnTrack(1, gamestate.enumFaction.automa, roll, gamestate.getDecisionPair(true), false, true);
+                }
+                break;
+            case gamestate.enumAutomaCivilization.explorers:
+                switch(gamestate.getEra()) {
+                    case 2:
+                    case 4:
+                        message += gamestate.advanceOnTrack(1, gamestate.enumFaction.automa, gamestate.enumTrack.exploration, gamestate.getDecisionPair(true));
+                        break;
+                    case 3:
+                    case 5:
+                        message += gamestate.advanceOnTrack(1, gamestate.enumFaction.automa, gamestate.enumTrack.exploration, gamestate.getDecisionPair(true));                 
+                        break;
+                }
+                break;
+            case gamestate.enumAutomaCivilization.engineers:
+            
+                break;
+        }
+    }
+
+    return message ? `<hr /> ${message}` : "";
+}
+
+//INITIALIZE
+// determine a random civ card for the automa
+setupNewGame();

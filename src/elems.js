@@ -25,6 +25,7 @@ export const automaBoard = document.getElementById('automa-board');
 export const shadowBoard = document.getElementById('shadow-board');
 export const btnClaimLandmark = document.getElementById('claim-landmark');
 export const btnBeginGame = document.getElementById('btnBeginGame');
+export const automaLevel = document.getElementById('automa-level');
 
 //events
 document.addEventListener('click', function (event) {
@@ -93,9 +94,7 @@ $('#modalNewFavorite').on('show.bs.modal', function (e) {
 });
 
 $('#modalNewFavorite').on('hidden.bs.modal', function (e) {
-    var msgFav = `<div class="text-center">The Automa's favorite is :</div> <div class="d-flex justify-content-center font-weight-bold mt-2">${helper.getTrackIcon(gamestate.getAutomaFavoriteTrack())} ${gamestate.getAutomaFavoriteTrack().toUpperCase()}</div>`;
-    msgFav += `<div class="text-center mt-3">The Shadow Empires's favorite is :</div> <div class="d-flex justify-content-center font-weight-bold mt-2">${helper.getTrackIcon(gamestate.getShadowEmpireFavoriteTrack())} ${gamestate.getShadowEmpireFavoriteTrack().toUpperCase()}</div>`;
-    app.gameMessage(msgFav);
+    app.continueIncomeTurn();
 });
 
 document.getElementById('takeIncomeYes').addEventListener('click', ()=>{

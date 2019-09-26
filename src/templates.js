@@ -41,11 +41,11 @@ export function formatCardLogItem(card, isLeftCard) {
 
 export function formatBoardState(boardState, favorite) {
     return `(
-        <div class="mr-2">${helper.getTrackIcon("favorite")}:<img src="images/${favorite}.png" class="track-icon" alt="favorite track" /></div>
-        <div class="mx-2">${helper.getTrackIcon("military")}: ${boardState.military}</div>
-        <div class="mx-2">${helper.getTrackIcon("exploration")}: ${boardState.exploration}</div>
-        <div class="mx-2">${helper.getTrackIcon("science")}: ${boardState.science}</div>
-        <div class="ml-2">${helper.getTrackIcon("technology")}: ${boardState.technology}</div>
+        <div class="mr-3">${helper.getTrackIcon("favorite")}:<img src="images/${favorite}.png" class="track-icon" alt="favorite track" /></div>
+        <div class="mx-3">${helper.getTrackIcon("military")}: ${boardState.military}</div>
+        <div class="mx-3">${helper.getTrackIcon("exploration")}: ${boardState.exploration}</div>
+        <div class="mx-3">${helper.getTrackIcon("science")}: ${boardState.science}</div>
+        <div class="ml-3">${helper.getTrackIcon("technology")}: ${boardState.technology}</div>
     )`;
 }
 

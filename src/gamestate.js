@@ -16,11 +16,11 @@ export const enumTrack = {
     exploration: 'exploration',
 }
 
-const enumAutomaCivilization = {
+export const enumAutomaCivilization = {
     explorers: "explorers",
-    militants: "militants",
+    conquerers: "conquerers",
     scientists: "scientists",
-    inventors: "inventors",
+    engineers: "engineers",
 }
 
 export const enumDecisionTrack = {
@@ -196,6 +196,7 @@ let automaStateHandler = {
                 break;
             case "difficulty":
                 highlight("data-automa-difficulty", value);
+                dom.setElementHtml(dom.automaLevel, value);
                 break;      
       }
       return true;
@@ -277,7 +278,7 @@ export function setAutomaFavoriteTrack(fav) {
     updateBoardInformation(enumFaction.automa);    
 }
 
-export function advanceOnTrack(distance, faction, track, decision, nobenefit) {
+export function advanceOnTrack(distance, faction, track, decision, nobenefit, scienceDie) {
     if (!isTrackComplete(faction, track)) {
         let trackPosition = 0;
         switch(faction) {
@@ -292,8 +293,8 @@ export function advanceOnTrack(distance, faction, track, decision, nobenefit) {
                 break;
         }
 
-        let message = faction === enumFaction.shadowempire ? "<hr />" : "";
-        message += `<div class="text-center mt-4">${getFactionLabel(faction)} ${decision === -1 ? "regresses" : "advances"} 1 space on the</div> <div class="font-weight-bold text-center">${helper.getTrackIcon(track)} ${track.toUpperCase()} track.</div>`;
+        let message = "";
+        message += `<div class="text-center mt-4">${getFactionLabel(faction)} ${decision === -1 ? "regresses" : "advances"} 1 space on the</div> <div class="font-weight-bold text-center">${helper.getTrackIcon(track)} ${track.toUpperCase()} track${scienceDie ? " (Science Die)" : ""}.</div>`;
 
         if (faction === enumFaction.automa && nobenefit !== true) {           
             message += gainTrackBenefit(track, trackPosition, decision, faction);     
@@ -331,12 +332,12 @@ function gainTrackBenefit(track, position, decision, faction) {
 
             case enumBenefit.sciencediex:
                 let rollSciX = dice.rollScience();
-                benefitText += advanceOnTrack(1, faction, rollSciX, decision, true);               
+                benefitText += advanceOnTrack(1, faction, rollSciX, decision, true, true);               
                 break;
 
             case enumBenefit.sciencedie:
                 let rollSci = dice.rollScience();
-                benefitText += advanceOnTrack(1, faction, rollSci, decision);                
+                benefitText += advanceOnTrack(1, faction, rollSci, decision, false, true);                
                 break;
 
             case enumBenefit.cleartech:
@@ -345,18 +346,18 @@ function gainTrackBenefit(track, position, decision, faction) {
             
             case enumBenefit.physics:
                 let rollPhyics = dice.rollScienceDecision([enumDecisionTrack.military, enumDecisionTrack.technology, enumDecisionTrack.exploration]);
-                benefitText += advanceOnTrack(1, faction, rollPhyics, decision, true);
+                benefitText += advanceOnTrack(1, faction, rollPhyics, decision, true, true);
                 break;
 
             case enumBenefit.neuroscience:
                 let rollNeuroScience = dice.rollScienceDecision([enumDecisionTrack.military, enumDecisionTrack.technology]);
-                benefitText += advanceOnTrack(-1, faction, rollNeuroScience, decision, true);
+                benefitText += advanceOnTrack(-1, faction, rollNeuroScience, decision, true, true);
                 break;
 
             case enumBenefit.quantumphysics:
                 for(let i = 0; i < 2; i++) {
                     let rollNeuroScience = dice.rollScienceDecision([enumDecisionTrack.military, enumDecisionTrack.technology, enumDecisionTrack.exploration]);
-                    benefitText += advanceOnTrack(-1, faction, rollNeuroScience, decision, true);
+                    benefitText += advanceOnTrack(-1, faction, rollNeuroScience, decision, true, true);
                 }
                 break;
         }
@@ -396,7 +397,11 @@ export function getDecisionPair(incomeTurnDecision) {
         //if the automa needs a tie breaker during an income turn,
         // use the latest tiebreaker card from the income turn
         // and draw the top card of the progress deck
-        leftCard = app.getCardDetails(proxyAutomaState.currentCards[1]);
+        if (!proxyAutomaState.currentCards) {
+            leftCard = app.getCardDetails(proxyAutomaState.discard[0])
+        } else {
+            leftCard = app.getCardDetails(proxyAutomaState.currentCards[0]);
+        }
         rightCard = app.getCardDetails(proxyAutomaState.deck[0]);
 
         //then shuffle the progress deck
@@ -451,7 +456,7 @@ export function claimLandMark(landmark, target) {
 export function setAutomaCivilization(civilization) {
     let favorite = null;
     switch(civilization) {
-        case enumAutomaCivilization.militants:
+        case enumAutomaCivilization.conquerers:
             favorite = enumTrack.military;
             break;
         case enumAutomaCivilization.scientists:
@@ -460,7 +465,7 @@ export function setAutomaCivilization(civilization) {
         case enumAutomaCivilization.explorers:
             favorite = enumTrack.exploration;
             break;
-        case enumAutomaCivilization.inventors:
+        case enumAutomaCivilization.engineers:
             favorite = enumTrack.technology;
             break;
     }
@@ -470,9 +475,17 @@ export function setAutomaCivilization(civilization) {
     console.log("Automa favorite track is: " + favorite);
 }
 
+export function getAutomaCivilization() {
+    return proxyAutomaState.civilization;
+}
+
 export function setAutomaDifficulty(level) {
     proxyAutomaState.difficulty = level;
     console.log("Automa difficulty is level " + level);
+}
+
+export function getAutomaDifficulty() {
+    return parseInt(proxyAutomaState.difficulty);
 }
 
 function highlight(attribute, value) {
@@ -486,4 +499,8 @@ function highlight(attribute, value) {
             elem.classList.remove("selected-game-option");
         }
     }
+}
+
+export function getEra() {
+    return proxyAutomaState.era;
 }
