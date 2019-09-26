@@ -317,19 +317,7 @@ export function takeAutomaTurn() {
 }
 
 export function confirmTakeIncome() {
-    if (gamestate.proxyAutomaState.era < 5) {
-        $('#modalConfirmIncome').modal("show");
-    }
-    else {    
-        discardPlayedCards();
-        clearTurnResult();
-        updateAutomaStateUI();  
-        dom.setElementHtml(dom.resultAutoma2, `<div class='col text-center'>It's <em>game over</em> for the Automa!</div>`);
-        gameMessage("Automa has completed its game");
-
-        dom.disableElement(dom.btnTakeTurn, true);                
-        dom.disableElement(dom.btnConfirmTakeIncome, false);
-    }
+    $('#modalConfirmIncome').modal("show");
 }
 
 export function takeIncomeTurn() {
@@ -382,17 +370,25 @@ export function continueIncomeTurn() {
     addToHand(numCardsToAdd);
 
     //shuffle the new deck
-    shuffle(gamestate.proxyAutomaState.hand);        
+    shuffle(gamestate.proxyAutomaState.hand); 
 
-    //increase the automa to the next era
-    gamestate.proxyAutomaState.era++;
-
-    clearTurnResult();
-    updateAutomaStateUI();
+    if (gamestate.proxyAutomaState.era >= 5) {
+        discardPlayedCards();
+        
+        dom.setElementHtml(dom.resultAutoma2, `<div class='col text-center'>It's <em>game over</em> for the Automa!</div>`);
+        dom.disableElement(dom.btnTakeTurn, true);                
+        dom.disableElement(dom.btnConfirmTakeIncome, true);
+    }
+    else {
+        //increase the automa to the next era
+        gamestate.proxyAutomaState.era++;  
+        clearTurnResult();   
+    }
+    
+    updateAutomaStateUI();  
 
     message += `<hr/> <h5 class="text-center">Scoring and Income</h5> <div class="text-center">${gamestate.getFactionLabel(gamestate.enumFaction.automa)} <strong>scores points</strong>.</div><div class="text-center">${gamestate.getFactionLabel(gamestate.enumFaction.automa)} <strong>Gains 1 Tapestry card</strong>.</div>`;
-
-    gameMessage(message);
+    gameMessage(message);   
 }
 
 function checkForNewFavorite() {
