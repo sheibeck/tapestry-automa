@@ -30,15 +30,15 @@ function getTrackAdvance(faction) {
     }
 
     switch(track) {
-        case gamestate.enumTrack.any:
+        case gamestate.enumDecisionTrack.any:
             return allNonFinishedTracks(faction, decision);
             break;
 
-        case gamestate.enumTrack.finish:
+        case gamestate.enumDecisionTrack.finish:
             return nonFinishedClosestToEnd(faction, decision);
             break;
 
-        case gamestate.enumTrack.landmark:
+        case gamestate.enumDecisionTrack.landmark:
             return nonFinishedClosestToLandmarkOrEnd(faction, decision);
             break;
     }

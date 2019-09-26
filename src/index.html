@@ -58,6 +58,11 @@
         word-wrap: break-word;
       }
 
+      .selected-game-option,
+      .selected-game-option:focus {
+        border: solid 3px black !important  ;
+      }
+
       button * {pointer-events: none;}
 
       body {
@@ -102,56 +107,34 @@
             <div class="text-center col-5">Progress: <span class="font-italic" id="progress">&mdash;</span> (<span class="font-italic text-muted" id="currentcards">&mdash;</span>)</div>            
             <div class="text-center col-4">Discard: <a href="#" class="" id="viewdiscard"><span class="font-italic" id="discard">&mdash;</span></a></div>           
           </div>   
-          <div id="view-setup" class="row">
-            <div class="collapse col" id="collapseSetup">
-              <h3>Setup</h3>
-              <p>
-                Remove the following tapestry cards from play: 
-                <ul>
-                  <li>Age of Sail</li>
-                  <li>Alliance</li>
-                  <li>Coal Baron</li>
-                  <li>Dictatorship</li>
-                  <li>Diplomacy</li>
-                  <li>Economy</li>
-                  <li>Espionage</li>
-                  <li>Marriage of State</li>
-                  <li>Oil Magnate</li>
-                  <li>Olympic Host</li>
-                  <li>Steam Tycoon</li>
-                  <li>Trade</li>
-                  <li>Trap (x2)</li>                  
-                </ul>
-              </p>
-              <p>
-              Set up as you would for a 3-player game except that you always start on the territory labeled <strong>“2/4”</strong> no matter which capital city mat you’re using.
-              </p>
-              <p>Set up for yourself following the normal rules, then for the bots:</p>
-              <ol>
-                <li>Choose the <strong><span style="color: red">Red</span></strong> color for the Automa. Give it the following components and nothing else:</li>
-                  <ol type="a">
-                    <li>The Automa income mat with the normal side up.</li>
-                    <li>All outposts of its color. Place 2 of them on the territory labeled <strong>“3/5”</strong>.</li>
-                    <li>All player tokens of its color: Place 1 on 0 VP and 1 on the starting space of each advancement track.</li>
-                    <li>Roll the science die and place the Automa civilization card side with the corresponding icon face-up on the Automa’s income mat.</li>
-                    <li>Place 1 of the Automa’s outposts next to the track indicated by the heart icon on its civilization card. This is the Automa’s favorite track.</li>
-                  </ol>
-                <li>Choose the <strong><span style="color: gray;">Gray</span></strong> color for the Shadow Empire. Give it the following components and nothing else:</li>
-                  <ol type="a">
-                    <li>All outposts of its color.</li>
-                    <li>Five player tokens. Place 1 on the starting space of each advancement track. Set 1 aside.</li>
-                    <li>Roll the science die until you get a track different than the Automa’s favorite track. Place 1 of its outposts by this track. This is the Shadow Empire’s favorite track.</li>
-                  </ol>
-                </ol>
-              </ol>
-            </div>                
+          <div id="view-setup" class="row">             
             <div class="col-12 text-center">
-              <a class="btn btn-secondary m-2" data-toggle="collapse" href="#collapseSetup" role="button" aria-expanded="false" aria-controls="collapseSetup">
-                  <i class="fas fa-book"></i> Show Setup
-                </a>
-              <button type="button" data-toggle="modal" data-target="#modalBeginGame" class="btn btn-primary m-2"><i class="fas fa-play-circle"></i> Begin Game</button>            
+              <p>
+                  <div class="font-weight-bold col-12 text-center mb-2">Choose a civilization for the Automa:</div>
+    
+                  <div class="d-flex flex-row justify-content-center">
+                    <button type="button" class="btn btn-success mr-1" data-automa-civilization="scientists"><img src="images/science.png" class="track-icon" alt="science" /><br/>Scientists</button>
+                    <button type="button" class="btn btn-primary mr-1" data-automa-civilization="explorers"><img src="images/exploration.png" class="track-icon" alt="exploration" /><br/>Explorers</button>
+                    <button type="button" class="btn btn-danger mr-1" data-automa-civilization="militants"><img src="images/military.png" class="track-icon" alt="military" /><br/>Militants</button>
+                    <button type="button" class="btn btn-warning mr-1" data-automa-civilization="inventors"><img src="images/technology.png" class="track-icon" alt="technology" /><br/>Inventors</button>  
+                  </div>
+              </p>      
+              <p>
+                  <div class="font-weight-bold col-12 text-center mb-2">Choose a difficulty level for the Automa.</div>
+    
+                  <div class="d-flex flex-row justify-content-center">
+                    <button type="button" class="btn btn-success mr-1 selected-game-option" data-automa-difficulty="1">Level<br/>1</button>
+                    <button type="button" class="btn btn-primary mr-1" data-automa-difficulty="2">Level<br/>2</button>
+                    <button type="button" class="btn btn-warning mr-1" data-automa-difficulty="3">Level<br/>3</button>
+                    <button type="button" class="btn btn-danger mr-1" data-automa-difficulty="4">Level<br/>4</button>  
+                  </div>
+              </p>
+              <p class="d-flex flex-row justify-content-center mt-5">                         
+                <button id="btnBeginGame" type="button" class="btn btn-primary m-2"><i class="fas fa-play-circle"></i><br />Begin Game</button>    
+              </p>        
             </div>
             <div class="col-12 text-center">
+              <a href="#" data-toggle="modal" data-target="#modalGameSetup">Show Setup</a> |    
               <a target="_blank" href="https://app.box.com/s/uqp6m71co7gdyfahz5qamp3bd7o1v06i">Download the rules</a>
             </div>
           </div>
@@ -304,29 +287,60 @@
     </div>
 
     <!-- Start Game -->
-    <div id="modalBeginGame" class="modal" tabindex="-1" role="dialog">
-      <div class="modal-dialog model-sm" role="document">
+    <div id="modalGameSetup" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
           <div class="modal-header bg-warning">
-            <h5 class="modal-title">Start Game</h5>
+            <h5 class="modal-title">Game Setup</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body">
-            <p>
-              <div class="font-weight-bold col-12 text-center mb-2">What is the Automa's favorite track?</div>
-
-              <div class="d-flex flex-row justify-content-center">
-                <button type="button" class="btn btn-success mr-1" data-dismiss="modal" data-automa-favorite="science"><img src="images/science.png" class="track-icon" alt="science" data-automa-favorite="science" /> Science</button>
-                <button type="button" class="btn btn-primary mr-1" data-dismiss="modal" data-automa-favorite="exploration"><img src="images/exploration.png" class="track-icon" alt="exploration" data-automa-favorite="exploration" /> Exploration</button>
-                <button type="button" class="btn btn-danger mr-1" data-dismiss="modal" data-automa-favorite="military"><img src="images/military.png" class="track-icon" alt="military" data-automa-favorite="military" /> Military</button>
-                <button type="button" class="btn btn-warning mr-1" data-dismiss="modal" data-automa-favorite="technology"><img src="images/technology.png" class="track-icon" alt="technology" data-automa-favorite="technology" /> Technology</button>  
-              </div>
-            </p>              
+              <h3>Components</h3>
+              <p>
+                Remove the following tapestry cards from play: 
+                <ul>
+                  <li>Age of Sail</li>
+                  <li>Alliance</li>
+                  <li>Coal Baron</li>
+                  <li>Dictatorship</li>
+                  <li>Diplomacy</li>
+                  <li>Economy</li>
+                  <li>Espionage</li>
+                  <li>Marriage of State</li>
+                  <li>Oil Magnate</li>
+                  <li>Olympic Host</li>
+                  <li>Steam Tycoon</li>
+                  <li>Trade</li>
+                  <li>Trap (x2)</li>                  
+                </ul>
+              </p>
+              <h3>Components</h3> 
+              <p>
+              Set up as you would for a 3-player game except that you always start on the territory labeled <strong>“2/4”</strong> no matter which capital city mat you’re using.
+              </p>
+              <p>Set up for yourself following the normal rules, then for the bots:</p>
+              <ol>
+                <li>Choose the <strong><span style="color: red">Red</span></strong> color for the Automa. Give it the following components and nothing else:</li>
+                  <ol type="a">
+                    <li>The Automa income mat with the normal side up.</li>
+                    <li>All outposts of its color. Place 2 of them on the territory labeled <strong>“3/5”</strong>.</li>
+                    <li>All player tokens of its color: Place 1 on 0 VP and 1 on the starting space of each advancement track.</li>
+                    <li>Roll the science die and place the Automa civilization card side with the corresponding icon face-up on the Automa’s income mat.</li>
+                    <li>Place 1 of the Automa’s outposts next to the track indicated by the heart icon on its civilization card. This is the Automa’s favorite track.</li>
+                  </ol>
+                <li>Choose the <strong><span style="color: gray;">Gray</span></strong> color for the Shadow Empire. Give it the following components and nothing else:</li>
+                  <ol type="a">
+                    <li>All outposts of its color.</li>
+                    <li>Five player tokens. Place 1 on the starting space of each advancement track. Set 1 aside.</li>
+                    <li>Roll the science die until you get a track different than the Automa’s favorite track. Place 1 of its outposts by this track. This is the Shadow Empire’s favorite track.</li>
+                  </ol>
+                </ol>
+              </ol>
           </div>
           <div class="modal-footer">    
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>          
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>          
           </div>
         </div>
       </div>

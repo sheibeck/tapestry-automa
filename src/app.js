@@ -8,287 +8,12 @@ Sentry.init({
 //-------------------------------
 // IMPORTS
 //-------------------------------
-import API, { graphqlOperation } from '@aws-amplify/api'
-import PubSub from '@aws-amplify/pubsub';
-import awsconfig from './aws-exports';
-API.configure(awsconfig);
-PubSub.configure(awsconfig);
-import { listAutomaCards } from './graphql/queries';
 import * as asset from "./assets.js"
 import * as dom from "./elems.js";
 import * as templates from "./templates.js";
 import * as decision from "./decision.js";
 import * as gamestate from "./gamestate.js";
-
-//-------------------------------
-// LOAD CARD DATA
-//-------------------------------
-//get the card data from dynamodb
-export let cardData = [{
-        "id": "22",
-        "favorite": 4,
-        "military": 1,
-        "science": 5,
-        "exploration": 2,
-        "technology": 3,
-        "topple": true,
-        "income": false,
-        "conquertiebreaker": "n-se",
-        "automatrack": "finish",
-        "shadowtrack": "any"
-    }, {
-        "id": "18",
-        "favorite": 1,
-        "military": 3,
-        "science": 4,
-        "exploration": 2,
-        "technology": 5,
-        "topple": false,
-        "income": false,
-        "conquertiebreaker": "n-se",
-        "automatrack": "landmark",
-        "shadowtrack": "any"
-    }, {
-        "id": "16",
-        "favorite": 3,
-        "military": 5,
-        "science": 4,
-        "exploration": 2,
-        "technology": 1,
-        "topple": false,
-        "income": true,
-        "conquertiebreaker": "s-nw",
-        "automatrack": "any",
-        "shadowtrack": "landmark"
-    }, {
-        "id": "2",
-        "favorite": 3,
-        "military": 1,
-        "science": 4,
-        "exploration": 2,
-        "technology": 5,
-        "topple": false,
-        "income": true,
-        "conquertiebreaker": "e-nw",
-        "automatrack": "any",
-        "shadowtrack": "landmark"
-    }, {
-        "id": "13",
-        "favorite": 4,
-        "military": 3,
-        "science": 1,
-        "exploration": 5,
-        "technology": 2,
-        "topple": false,
-        "income": false,
-        "conquertiebreaker": "s-ne",
-        "automatrack": "any",
-        "shadowtrack": "landmark"
-    }, {
-        "id": "8",
-        "favorite": 4,
-        "military": 2,
-        "science": 5,
-        "exploration": 1,
-        "technology": 3,
-        "topple": false,
-        "income": true,
-        "conquertiebreaker": "s-ne",
-        "automatrack": "any",
-        "shadowtrack": "any"
-    }, {
-        "id": "9",
-        "favorite": 3,
-        "military": 5,
-        "science": 2,
-        "exploration": 4,
-        "technology": 1,
-        "topple": true,
-        "income": true,
-        "conquertiebreaker": "se-n",
-        "automatrack": "any",
-        "shadowtrack": "any"
-    }, {
-        "id": "1",
-        "favorite": 1,
-        "military": 2,
-        "science": 5,
-        "exploration": 3,
-        "technology": 4,
-        "topple": true,
-        "income": true,
-        "conquertiebreaker": "n-se",
-        "automatrack": "finish",
-        "shadowtrack": "any"
-    }, {
-        "id": "6",
-        "favorite": 3,
-        "military": 1,
-        "science": 2,
-        "exploration": 5,
-        "technology": 4,
-        "topple": true,
-        "income": false,
-        "conquertiebreaker": "n-se",
-        "automatrack": "any",
-        "shadowtrack": "any"
-    }, {
-        "id": "5",
-        "favorite": 5,
-        "military": 2,
-        "science": 4,
-        "exploration": 1,
-        "technology": 3,
-        "topple": false,
-        "income": false,
-        "conquertiebreaker": "ne-s",
-        "automatrack": "any",
-        "shadowtrack": "landmark"
-    }, {
-        "id": "4",
-        "favorite": 3,
-        "military": 4,
-        "science": 2,
-        "exploration": 5,
-        "technology": 1,
-        "topple": false,
-        "income": true,
-        "conquertiebreaker": "ne-s",
-        "automatrack": "landmark",
-        "shadowtrack": "any"
-    }, {
-        "id": "19",
-        "favorite": 5,
-        "military": 1,
-        "science": 3,
-        "exploration": 4,
-        "technology": 2,
-        "topple": true,
-        "income": true,
-        "conquertiebreaker": "e-nw",
-        "automatrack": "any",
-        "shadowtrack": "any"
-    }, {
-        "id": "7",
-        "favorite": 1,
-        "military": 4,
-        "science": 5,
-        "exploration": 3,
-        "technology": 2,
-        "topple": false,
-        "income": false,
-        "conquertiebreaker": "e-sw",
-        "automatrack": "any",
-        "shadowtrack": "any"
-    }, {
-        "id": "11",
-        "favorite": 1,
-        "military": 3,
-        "science": 4,
-        "exploration": 2,
-        "technology": 5,
-        "topple": false,
-        "income": false,
-        "conquertiebreaker": "s-nw",
-        "automatrack": "any",
-        "shadowtrack": "landmark"
-    }, {
-        "id": "3",
-        "favorite": 5,
-        "military": 3,
-        "science": 1,
-        "exploration": 4,
-        "technology": 2,
-        "topple": true,
-        "income": false,
-        "conquertiebreaker": "n-se",
-        "automatrack": "landmark",
-        "shadowtrack": "finish"
-    }, {
-        "id": "20",
-        "favorite": 5,
-        "military": 4,
-        "science": 3,
-        "exploration": 2,
-        "technology": 1,
-        "topple": false,
-        "income": false,
-        "conquertiebreaker": "n-se",
-        "automatrack": "any",
-        "shadowtrack": "any"
-    }, {
-        "id": "21",
-        "favorite": 3,
-        "military": 5,
-        "science": 4,
-        "exploration": 1,
-        "technology": 2,
-        "topple": true,
-        "income": true,
-        "conquertiebreaker": "ne-s",
-        "automatrack": "any",
-        "shadowtrack": "finish"
-    }, {
-        "id": "12",
-        "favorite": 3,
-        "military": 4,
-        "science": 1,
-        "exploration": 5,
-        "technology": 2,
-        "topple": true,
-        "income": true,
-        "conquertiebreaker": "w-se",
-        "automatrack": "any",
-        "shadowtrack": "any"
-    }, {
-        "id": "17",
-        "favorite": 2,
-        "military": 4,
-        "science": 5,
-        "exploration": 1,
-        "technology": 3,
-        "topple": false,
-        "income": true,
-        "conquertiebreaker": "e-sw",
-        "automatrack": "any",
-        "shadowtrack": "any"
-    }, {
-        "id": "10",
-        "favorite": 5,
-        "military": 1,
-        "science": 4,
-        "exploration": 2,
-        "technology": 3,
-        "topple": true,
-        "income": false,
-        "conquertiebreaker": "sw-n",
-        "automatrack": "landmark",
-        "shadowtrack": "any"
-    }, {
-        "id": "15",
-        "favorite": 1,
-        "military": 2,
-        "science": 5,
-        "exploration": 4,
-        "technology": 3,
-        "topple": true,
-        "income": false,
-        "conquertiebreaker": "sw-n",
-        "automatrack": "landmark",
-        "shadowtrack": "landmark"
-    }, {
-        "id": "14",
-        "favorite": 2,
-        "military": 4,
-        "science": 3,
-        "exploration": 1,
-        "technology": 5,
-        "topple": true,
-        "income": true,
-        "conquertiebreaker": "se-n",
-        "automatrack": "landmark",
-        "shadowtrack": "any"
-    }];
+import { cardData } from "./data";
 
 
 //-------------------------------
@@ -465,6 +190,11 @@ export function getTrackImage(type, hideText) {
 }
 
 export function startGame() { 
+    if (!gamestate.getAutomaFavoriteTrack()) {
+        gameMessage("Please choose an Automa civilization!");
+        return;
+    }
+
     console.log("NEW GAME");
 
     gamestate.proxyAutomaState.gameStarted = true;
@@ -675,6 +405,7 @@ export function setNewFavorite(faction) {
 
 export function setupNewGame() {
     gamestate.proxyAutomaState.gameStarted = false;
+    gamestate.setAutomaCivilization(null);
     
     dom.showElement(dom.viewsetup, true);
     dom.showElement(dom.viewcards, false);

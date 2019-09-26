@@ -10,6 +10,20 @@ export const enumFaction = {
 }
 
 export const enumTrack = {
+    science: 'science',
+    military: 'military',
+    technology: 'technology',
+    exploration: 'exploration',
+}
+
+const enumAutomaCivilization = {
+    explorers: "explorers",
+    militants: "militants",
+    scientists: "scientists",
+    inventors: "inventors",
+}
+
+export const enumDecisionTrack = {
     any: 'any',
     finish: 'finish',
     landmark: 'landmark',
@@ -101,6 +115,8 @@ export let automaState = {
     currentCards: [],
     gameStarted: false,
     isIncomeTurn: false,
+    difficulty: 1,
+    automaCivilization: null,
     favorites: {
         automa: null,
         shadowempire: null,
@@ -174,7 +190,13 @@ let automaStateHandler = {
             case "isIncomeTurn":
                 dom.disableElement(dom.btnTakeTurn, value);
                 dom.disableElement(dom.btnConfirmTakeIncome, !value);                
-                break;          
+                break;    
+            case "civilization":
+                highlight("data-automa-civilization", value);
+                break;
+            case "difficulty":
+                highlight("data-automa-difficulty", value);
+                break;      
       }
       return true;
     }
@@ -182,7 +204,6 @@ let automaStateHandler = {
 
 //setup a proxy handler to watch some variables
 export const proxyAutomaState = new Proxy(automaState, automaStateHandler);
-
 
 let automaBoardHandler = {  
     get: function(target, name) {
@@ -323,18 +344,18 @@ function gainTrackBenefit(track, position, decision, faction) {
                 break;
             
             case enumBenefit.physics:
-                let rollPhyics = dice.rollScienceDecision([enumTrack.military, enumTrack.technology, enumTrack.exploration]);
+                let rollPhyics = dice.rollScienceDecision([enumDecisionTrack.military, enumDecisionTrack.technology, enumDecisionTrack.exploration]);
                 benefitText += advanceOnTrack(1, faction, rollPhyics, decision, true);
                 break;
 
             case enumBenefit.neuroscience:
-                let rollNeuroScience = dice.rollScienceDecision([enumTrack.military, enumTrack.technology]);
+                let rollNeuroScience = dice.rollScienceDecision([enumDecisionTrack.military, enumDecisionTrack.technology]);
                 benefitText += advanceOnTrack(-1, faction, rollNeuroScience, decision, true);
                 break;
 
             case enumBenefit.quantumphysics:
                 for(let i = 0; i < 2; i++) {
-                    let rollNeuroScience = dice.rollScienceDecision([enumTrack.military, enumTrack.technology, enumTrack.exploration]);
+                    let rollNeuroScience = dice.rollScienceDecision([enumDecisionTrack.military, enumDecisionTrack.technology, enumDecisionTrack.exploration]);
                     benefitText += advanceOnTrack(-1, faction, rollNeuroScience, decision, true);
                 }
                 break;
@@ -425,4 +446,44 @@ export function claimLandMark(landmark, target) {
     }
 
     console.log(`${proxyAutomaState.landmarks[track][building].claimed ? "" : "Un-"}Claim Landmark: ${proxyAutomaState.landmarks[track][building].name}`);
+}
+
+export function setAutomaCivilization(civilization) {
+    let favorite = null;
+    switch(civilization) {
+        case enumAutomaCivilization.militants:
+            favorite = enumTrack.military;
+            break;
+        case enumAutomaCivilization.scientists:
+            favorite = enumTrack.science;
+            break;
+        case enumAutomaCivilization.explorers:
+            favorite = enumTrack.exploration;
+            break;
+        case enumAutomaCivilization.inventors:
+            favorite = enumTrack.technology;
+            break;
+    }
+
+    setAutomaFavoriteTrack(favorite);
+    proxyAutomaState.civilization = civilization;
+    console.log("Automa favorite track is: " + favorite);
+}
+
+export function setAutomaDifficulty(level) {
+    proxyAutomaState.difficulty = level;
+    console.log("Automa difficulty is level " + level);
+}
+
+function highlight(attribute, value) {
+    let nodeList = document.querySelectorAll(`[${attribute}]`);
+    for(let i=0; i < nodeList.length; i++) {
+        let elem = nodeList[i];
+        if (elem.getAttribute(attribute) === value) {
+            elem.classList.add("selected-game-option");
+        }
+        else {
+            elem.classList.remove("selected-game-option");
+        }
+    }
 }

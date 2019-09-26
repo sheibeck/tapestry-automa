@@ -24,16 +24,19 @@ export const btnGameReview = document.getElementById('gameReview');
 export const automaBoard = document.getElementById('automa-board');
 export const shadowBoard = document.getElementById('shadow-board');
 export const btnClaimLandmark = document.getElementById('claim-landmark');
+export const btnBeginGame = document.getElementById('btnBeginGame');
 
 //events
 document.addEventListener('click', function (event) {
 	// If the event target doesn't match bail
-	if (event.target.hasAttribute('data-automa-favorite')) {        
-        var favorite = event.target.getAttribute("data-automa-favorite");        
-        gamestate.setAutomaFavoriteTrack(favorite);
-        app.gameMessage("The Automa's favorite track is now: " + favorite);
-        console.log("Automa favorite track is: " + favorite);
-        app.startGame();
+	if (event.target.hasAttribute('data-automa-civilization')) {        
+        var civilization = event.target.getAttribute("data-automa-civilization");        
+        gamestate.setAutomaCivilization(civilization);
+    }
+
+    if (event.target.hasAttribute('data-automa-difficulty')) {        
+        var level = event.target.getAttribute("data-automa-difficulty");        
+        gamestate.setAutomaDifficulty(level);
     }
 
     if (event.target.hasAttribute('data-claim-landmark')) {
@@ -53,6 +56,10 @@ document.addEventListener('click', function (event) {
 
 document.getElementById('newGameYes').addEventListener('click', ()=>{
     app.setupNewGame();
+});
+
+btnBeginGame.addEventListener('click', ()=>{
+    app.startGame();
 });
 
 //when we show the landmark modal, update the internals to disable
