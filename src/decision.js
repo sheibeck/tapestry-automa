@@ -132,29 +132,45 @@ export function nonFinishedClosestToLandmarkOrEnd(faction, decision, returnTrack
 
 function nonFinishedClosestToEnd(faction, decision) {
     let tiebreaker = getTrackTieBreaker(faction, decision);
-    
-    let obj = null;
-    
-    if (faction == gamestate.enumFaction.automa)
-        obj = gamestate.automaState.tracks.automa;
-    else 
-        obj = gamestate.automaState.tracks.shadowempire;
+    let favoriteTrack = gamestate.getFavoriteTrack(faction);
 
-    const max = Object.keys(obj).filter(x => {
-             return obj[x] == Math.max.apply(null, Object.values(obj));    
-            });
+    //get the faction board state we're looking for
+    let ft = gamestate.automaState.tracks[faction];
 
-    let track = null;
-    for(var propertyName in tiebreaker) {
-        //convert the favorite track to a real track name
-        track = tiebreaker[propertyName] === "favorite" ? gamestate.getFavoriteTrack(faction) : tiebreaker[propertyName];
+    //filter out any tracks that have reached the end
+    var availableTracks = Object.keys(ft).reduce((p, c) => {    
+        if (ft[c] < 12) p[c] = ft[c];
+        return p;
+      }, {});
 
-        if (Object.keys(max).find(key => max[key] === track) && !gamestate.isTrackComplete(faction, track))
+    //of the remaining tracks, find the shortest distance to the end of the track.
+    let chosenTrack = null;
+    let lowestDistance = 99;
+    let lowestTieBreakerPosition = 99;
+    for(let t in availableTracks) {         
+        // get the distance to the end of the track
+        // f[t] == the current position on this track
+        let currentDistance = 12-ft[t];  
+        
+        //get the position of this track in the tiebreakers
+        let tieBreakerPosition = 99;
+        for ( let tb = 0; tb < Object.keys(tiebreaker).length; tb++) {            
+            let tieBreakerTrackName = tiebreaker[tb] === "favorite" ? gamestate.getFavoriteTrack(faction) : tiebreaker[tb];
+            if (tieBreakerTrackName === t) {
+                tieBreakerPosition = tb;
+                break;
+            }
+        }      
+      
+        if ( ( currentDistance == lowestDistance && tieBreakerPosition < lowestTieBreakerPosition) || (currentDistance < lowestDistance ) )
         {
-            return gamestate.advanceOnTrack(1, faction, track, decision);
-            break;
+            lowestDistance = currentDistance;
+            lowestTieBreakerPosition = tieBreakerPosition;
+            chosenTrack = t;
         }
     }
+    
+    return gamestate.advanceOnTrack(1, faction, chosenTrack, decision);
 }
 
 function getTrackTieBreaker(faction, decision) {    
