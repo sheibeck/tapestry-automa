@@ -304,7 +304,7 @@ export function takeAutomaTurn() {
 
         //shuffle the two drawn cards so we lay them down randomly
         shuffle(gamestate.proxyAutomaState.currentCards);
-        displayAutomaResult(gamestate.getDecisionPair(false));        
+        displayAutomaResult(gamestate.getDecisionPair(false));
 
         console.log(gamestate.proxyAutomaState);
 
@@ -457,6 +457,9 @@ export function setupNewGame() {
     dom.disableElement(dom.btnTakeTurn, true);
     dom.disableElement(dom.btnConfirmTakeIncome, true);  
     dom.disableElement(dom.btnClaimLandmark, true);
+
+    //if there is a saved game, show the resume button
+    dom.showElement(dom.btnResumeGame, gamestate.isSavedGameAvailable());
 }
 
 export function showDiscardPile() {
@@ -549,6 +552,44 @@ function gainIncomeTurnCivilizationBonus() {
     return message ? `<hr /> ${message}` : "";
 }
 
+
+export function saveGame() {    
+    localStorage.setItem('tapestryBotSaveGame', JSON.stringify(gamestate.automaState)); 
+    dom.showElement(dom.btnResumeGame, true);                
+}
+
+export function resumeGame() {
+    let restoredGameState = JSON.parse(localStorage.getItem('tapestryBotSaveGame'));
+
+    //choose colors for bots
+    dom.setImageSrc(dom.meepleAutoma, asset.MeepleRed);
+    dom.setImageSrc(dom.meepleShadowEmpire, asset.MeepleGrey);
+
+    //restore the old game over the current game state
+    for(let propertyName in restoredGameState) {        
+        gamestate.proxyAutomaState[propertyName] = restoredGameState[propertyName];
+    }
+    for(let propertyName in restoredGameState.tracks.automa) {
+        gamestate.proxyAutomaBoard[propertyName] = restoredGameState.tracks.automa[propertyName];        
+    }
+    for(let propertyName in restoredGameState.tracks.shadowempire) {
+        gamestate.proxyShadowEmpireBoard[propertyName] = restoredGameState.tracks.shadowempire[propertyName];        
+    }
+
+    updateAutomaStateUI();
+    if (!gamestate.proxyAutomaState.isIncomeTurn) {
+        displayAutomaResult(gamestate.getDecisionPair(false));
+    }
+
+    dom.disableElement(dom.btnClaimLandmark, false);
+    dom.disableElement(dom.btnTakeTurn, gamestate.proxyAutomaState.isIncomeTurn);
+    dom.disableElement(dom.btnConfirmTakeIncome, !gamestate.proxyAutomaState.isIncomeTurn);
+    
+    dom.showElement(dom.viewsetup, false);
+    dom.showElement(dom.viewcards, true);
+}
+
 //INITIALIZE
 // determine a random civ card for the automa
 setupNewGame();
+

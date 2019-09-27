@@ -130,8 +130,9 @@
                   </div>
               </p>
               <p class="d-flex flex-row justify-content-center mt-5">                         
-                <button id="btnBeginGame" type="button" class="btn btn-primary m-2"><i class="fas fa-play-circle"></i><br />Begin Game</button>    
-              </p>        
+                <button id="btnBeginGame" type="button" class="btn btn-primary m-2"><i class="fas fa-play-circle"></i><br />Begin Game</button>
+                <button id="btnResumeGame" type="button" class="btn btn-dark m-2"><i class="fas fa-share-square"></i><br />Resume Game</button>
+              </p>
             </div>
             <div class="col-12 text-center">
               <a href="#" data-toggle="modal" data-target="#modalGameSetup">Show Setup</a> |    
@@ -175,7 +176,7 @@
 
     <footer class="footer mt-auto text-center">
         <div class="d-flex justify-content-center">
-            <a id="gameReview" href="#" class="text-right">Show Current Game State?</a>
+            <a id="gameReview" class="mx-2" href="#">Show Current Game State?</a> | <a id="saveGame" href="#" class="mx-2">Save Game</a>
         </div>
 
         <div class="small text-light bg-dark py-3 flex-fill">
@@ -270,7 +271,7 @@
                 <ul>
                   <li>After you confirm, click <button type="button" class="btn btn-primary btn-sm"><i class="fas fa-play-circle"></i> Begin Game</button> and follow the instructions in the popup.</li>                  
                   <li>During the course of play you will be prompted to take Income Turns for the Automa as necessary.</li>
-                </ul>
+                </ul>               
               </li>
               <li>When the Automa takes an Income Turn click <button type="button" class="btn btn-success btn-sm"><i class="fas fa-dollar-sign"></i> Income Turn</button> and follow the instructions in the popup.</li>
               <li>To take an Advanced Turn with the Automa click <button type="button" class="btn btn-primary btn-sm"><i class="fas fa-arrow-circle-right"></i> Advanced Turn</button> and follow the instructions noted in the Game Message popup.</li>

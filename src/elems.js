@@ -26,6 +26,8 @@ export const shadowBoard = document.getElementById('shadow-board');
 export const btnClaimLandmark = document.getElementById('claim-landmark');
 export const btnBeginGame = document.getElementById('btnBeginGame');
 export const automaLevel = document.getElementById('automa-level');
+export const saveGame = document.getElementById('saveGame');
+export const btnResumeGame = document.getElementById('btnResumeGame');
 
 //events
 document.addEventListener('click', function (event) {
@@ -61,6 +63,14 @@ document.getElementById('newGameYes').addEventListener('click', ()=>{
 
 btnBeginGame.addEventListener('click', ()=>{
     app.startGame();
+});
+
+saveGame.addEventListener('click', ()=>{
+    app.saveGame();
+});
+
+btnResumeGame.addEventListener('click', ()=>{
+    app.resumeGame();
 });
 
 //when we show the landmark modal, update the internals to disable

@@ -191,13 +191,13 @@ let automaStateHandler = {
                 dom.disableElement(dom.btnTakeTurn, value);
                 dom.disableElement(dom.btnConfirmTakeIncome, !value);                
                 break;    
-            case "civilization":
+            case "automaCivilization":
                 highlight("data-automa-civilization", value);
                 break;
             case "difficulty":
                 highlight("data-automa-difficulty", value);
                 dom.setElementHtml(dom.automaLevel, value);
-                break;      
+                break;            
       }
       return true;
     }
@@ -206,7 +206,7 @@ let automaStateHandler = {
 //setup a proxy handler to watch some variables
 export const proxyAutomaState = new Proxy(automaState, automaStateHandler);
 
-let automaBoardHandler = {  
+export let automaBoardHandler = {  
     get: function(target, name) {
         return target[name];
     },  
@@ -218,7 +218,7 @@ let automaBoardHandler = {
 };
 export const proxyAutomaBoard = new Proxy(automaState.tracks.automa, automaBoardHandler);
 
-let shadowBoardHandler = {  
+export let shadowBoardHandler = {  
     get: function(target, name) {
         return target[name];
     },  
@@ -419,19 +419,26 @@ export function getDecisionPair(incomeTurnDecision) {
 }
 
 export function isTrackComplete(faction, track) {
-    return proxyAutomaState.tracks[faction][track] === 12; 
+    switch(faction) {
+        case enumFaction.automa:
+            return proxyAutomaBoard[track] === 12;
+            break;
+        case enumFaction.shadowempire:
+            return proxyShadowEmpireBoard[track] === 12;
+            break;
+    }    
 }
 
 function updateBoardInformation(faction) {    
     switch (faction)
     {
         case enumFaction.automa:
-            let automaBoardState = formatBoardState(proxyAutomaState.tracks.automa, proxyAutomaState.favorites.automa);
+            let automaBoardState = formatBoardState(proxyAutomaBoard, proxyAutomaState.favorites.automa);
             dom.setElementHtml(dom.automaBoard, automaBoardState);
             break;
         
         case enumFaction.shadowempire:
-            let seBoardState = formatBoardState(proxyAutomaState.tracks.shadowempire, proxyAutomaState.favorites.shadowempire)
+            let seBoardState = formatBoardState(proxyShadowEmpireBoard, proxyAutomaState.favorites.shadowempire)
             dom.setElementHtml(dom.shadowBoard, seBoardState);
             break;
     }
@@ -471,12 +478,12 @@ export function setAutomaCivilization(civilization) {
     }
 
     setAutomaFavoriteTrack(favorite);
-    proxyAutomaState.civilization = civilization;
+    proxyAutomaState.automaCivilization = civilization;
     console.log("Automa favorite track is: " + favorite);
 }
 
 export function getAutomaCivilization() {
-    return proxyAutomaState.civilization;
+    return proxyAutomaState.automaCivilization;
 }
 
 export function setAutomaDifficulty(level) {
@@ -503,4 +510,8 @@ function highlight(attribute, value) {
 
 export function getEra() {
     return proxyAutomaState.era;
+}
+
+export function isSavedGameAvailable() {
+    return localStorage.getItem('tapestryBotSaveGame') !== null && localStorage.getItem('tapestryBotSaveGame').length > 0;
 }
