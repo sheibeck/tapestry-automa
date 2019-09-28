@@ -1,3 +1,9 @@
+import runtime from 'serviceworker-webpack-plugin/lib/runtime';
+
+if ('serviceWorker' in navigator) {
+  const registration = runtime.register();
+}
+
 //initialize sentry so we can see any errors
 import * as Sentry from '@sentry/browser';
 Sentry.init({
