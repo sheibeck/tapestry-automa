@@ -1,6 +1,7 @@
 import * as asset from "./assets.js";
 import * as gamestate from "./gamestate.js";
 import * as helper from "./helper.js";
+import { format } from "url";
 
 export function formatCardLogPair(leftCard, rightCard) {
     let pair = `<div class="row mt-1">`;
@@ -76,4 +77,13 @@ export function drawClaimLandmark() {
         html += "</div>";
     }
     return html;
+}
+
+export function formatUserMessage(message) {
+  return  `<div class="alert alert-info" role="alert" style="position: absolute; top: 0; right: 0;">
+  ${message}
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>`
 }

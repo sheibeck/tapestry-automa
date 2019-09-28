@@ -555,7 +555,9 @@ function gainIncomeTurnCivilizationBonus() {
 
 export function saveGame() {    
     localStorage.setItem('tapestryBotSaveGame', JSON.stringify(gamestate.automaState)); 
-    dom.showElement(dom.btnResumeGame, true);                
+    dom.showElement(dom.btnResumeGame, true);   
+    
+    helper.showUserMessage("Game Saved.");
 }
 
 export function resumeGame() {
@@ -587,6 +589,8 @@ export function resumeGame() {
     
     dom.showElement(dom.viewsetup, false);
     dom.showElement(dom.viewcards, true);
+
+    helper.showUserMessage("Game Restored.");
 }
 
 //INITIALIZE

@@ -134,7 +134,7 @@ export let automaState = {
             technology: 0,
             science: 0,
         },
-    },
+    },    
     landmarks: {
         military : {
             0: { name: "Barracks", claimed: false },
@@ -318,7 +318,7 @@ function gainTrackBenefit(track, position, decision, faction) {
     for(let b = 0; b < benefits.length; b++) {
         switch(benefits[b]) {            
             case enumBenefit.tapestrycard:
-                benefitText += `<div class="text-center mt-1">&bull; The Automa gains 1 Tapestry card</div>`;
+                benefitText += `<div class="text-center mt-1">&bull; The Automa gains 1 Tapestry card</div>`;                
                 break;
             
             case enumBenefit.explore:
@@ -380,6 +380,7 @@ function checkForLandmarkClaim(position, track) {
     {
         //check for landmark claim                 
         message += `<div><i class="fas fa-home mr-1"></i>The Automa claims the <b>Tier ${tier} ${helper.getTrackIcon(track)} ${track.toUpperCase()}</b> landmark.</div>`;
+        automaState.landmarks[track][landMarkPosition].claimed = true;
     }
     return message;
 }

@@ -56,6 +56,9 @@ document.addEventListener('click', function (event) {
 
 }, false);
 
+$('.alert').on('closed.bs.alert', function () {
+   $(this).remove(); 
+});
 
 document.getElementById('newGameYes').addEventListener('click', ()=>{
     app.setupNewGame();
