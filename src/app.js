@@ -606,4 +606,6 @@ if(!navigator.onLine){
     //INITIALIZE
     dom.initEvents();
     setupNewGame();
+
+    var x = 1;
 }

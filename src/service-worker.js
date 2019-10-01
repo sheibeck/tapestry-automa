@@ -2,19 +2,7 @@ var appCacheFiles = [
 	'/'
 ], 
 // The name of the Cache Storage
-appCache = 'tapestry-bot-v1';
-
-  
-addEventListener('foreignfetch', event => {
-	event.respondWith(fetch(event.request).then(response => {
-		return {
-			response: response,
-			origin: event.origin,
-			headers: ['Content-Type']
-		}
-	}));
-});
-
+appCache = 'tapestry-bot-v1.1';
 
 /**
  * The install event is fired when the service worker 
@@ -23,11 +11,6 @@ addEventListener('foreignfetch', event => {
  */
 addEventListener('install', (event) => {
 	console.log('Tapestry Bot Install Event', event)
-	event.registerForeignFetch({
-		scopes:['/'],
-		origins:['*'] // or simply '*' to allow all origins
-	});
-
 	event.waitUntil(
     	caches.open(appCache).then(function(cache) {
 	      return cache.addAll(appCacheFiles);
@@ -115,3 +98,5 @@ addEventListener('notificationclick', (event) => {
 		clients.openWindow('http://bit.ly/tapestrybot')
 	);
 });
+
+importScripts("https://unpkg.com/service-worker-updatefound-refresh-dialog@1.1.0/dist/service-worker-updatefound-refresh-dialog.umd.js");
