@@ -1,10 +1,8 @@
-/*
 import runtime from 'serviceworker-webpack-plugin/lib/runtime';
 
 if ('serviceWorker' in navigator) {
   const registration = runtime.register();
 }
-*/
 
 //initialize sentry so we can see any errors
 import * as Sentry from '@sentry/browser';
@@ -604,4 +602,3 @@ export function resumeGame() {
 //INITIALIZE
 // determine a random civ card for the automa
 setupNewGame();
-
