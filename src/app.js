@@ -1,17 +1,6 @@
-/*
 import runtime from 'serviceworker-webpack-plugin/lib/runtime';
-
-if ('serviceWorker' in navigator) {
-  const registration = runtime.register();
-}
-*/
-
 //initialize sentry so we can see any errors
 import * as Sentry from '@sentry/browser';
-Sentry.init({
-    dsn: 'https://4ab621601e4c4b5da68ad015be899b4d@sentry.io/1731084',
-    environment: process.env.NODE_ENV,
-});
 
 //-------------------------------
 // IMPORTS
@@ -25,13 +14,23 @@ import * as dice from "./dice";
 import { cardData } from "./data";
 import * as helper from "./helper";
 
+if ('serviceWorker' in navigator) {
+    const registration = runtime.register();
+}
+
+Sentry.init({
+    dsn: 'https://4ab621601e4c4b5da68ad015be899b4d@sentry.io/1731084',
+    environment: process.env.NODE_ENV,
+});
+
 //-------------------------------
 //PRIVATE METHODS
 //-------------------------------
 
 //a modal for handling game messages
-const modalMessage = $("#modalGameMessage");
+let modalMessage;
 export function gameMessage(message) {
+    modalMessage = $("#modalGameMessage");
     $(".modal-body", modalMessage).html(message);
     modalMessage.modal({backdrop: 'static', keyboard: false});
 }
@@ -601,7 +600,12 @@ export function resumeGame() {
     helper.showUserMessage("Game Restored.");
 }
 
-//INITIALIZE
-// determine a random civ card for the automa
-setupNewGame();
+if(!navigator.onLine){
+    document.body.innerHTML = '<h2>Tapestry Bot requires an internet connection.</h2>'
+} else {
+    //INITIALIZE
+    dom.initEvents();
+    setupNewGame();
 
+    var x = 1;
+}

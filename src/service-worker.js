@@ -1,10 +1,8 @@
 var appCacheFiles = [
-	'/',
-	'/index.html',
-	'/app.bundle.js'
+	'/'
 ], 
 // The name of the Cache Storage
-appCache = 'tapestry-bot-v1';
+appCache = 'tapestry-bot-v1.1';
 
 /**
  * The install event is fired when the service worker 
@@ -35,30 +33,25 @@ addEventListener('activate', (event) => {
  * https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API
  */
 addEventListener('fetch', function(event) {
+	//return fetch(event.request);
+	console.log('Tapestry Bot Fetch: ', event);
+	let url = new URL(event.request.url);
+		//url.pathname
 	event.respondWith(
-	  caches.match(event.request)
-		.then(function(response) {
-		  if (response) {
-			return response;     // if valid response is found in cache return it
-		  } else {
-			return fetch(event.request)     //fetch from internet
-			  .then(function(res) {
-				return caches.open(CACHE_DYNAMIC_NAME)
-				  .then(function(cache) {
-					cache.put(event.request.url, res.clone());    //save the response for future
-					return res;   // return the fetched data
-				  })
-			  })
-			  .catch(function(err) {       // fallback mechanism
-				return caches.open(CACHE_CONTAINING_ERROR_MESSAGES)
-				  .then(function(cache) {
-					return cache.match('/offline.html');
-				  });
-			  });
-		  }
+		caches.match(event.request).then(function(resp) {
+			return resp || fetch(event.request).then(function(response) {
+				return caches.open(appCache).then(function(cache) {
+				if (event.request.method === 'GET') {
+					cache.put(event.request, response.clone());
+				}
+				return response;
+				});
+			});
 		})
 	);
-  });          
+  });         
+
+
 /**
  * The message will receive messages sent from the application.
  * This can be useful for updating a service worker or messaging
@@ -105,3 +98,5 @@ addEventListener('notificationclick', (event) => {
 		clients.openWindow('http://bit.ly/tapestrybot')
 	);
 });
+
+importScripts("https://unpkg.com/service-worker-updatefound-refresh-dialog@1.1.0/dist/service-worker-updatefound-refresh-dialog.umd.js");
