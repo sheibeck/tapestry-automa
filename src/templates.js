@@ -1,4 +1,7 @@
-import * as asset from "./assets.js"
+import * as asset from "./assets.js";
+import * as gamestate from "./gamestate.js";
+import * as helper from "./helper.js";
+import { format } from "url";
 
 export function formatCardLogPair(leftCard, rightCard) {
     let pair = `<div class="row mt-1">`;
@@ -35,4 +38,52 @@ export function formatCardLogItem(card, isLeftCard) {
             </div>                    
         </div>
     </div>`;
+}
+
+export function formatBoardState(boardState, favorite) {
+    return `(
+        <div class="mr-3">${helper.getTrackIcon("favorite")}:<img src="images/${favorite}.png" class="track-icon" alt="favorite track" /></div>
+        <div class="mx-3">${helper.getTrackIcon("military")}: ${boardState.military}</div>
+        <div class="mx-3">${helper.getTrackIcon("exploration")}: ${boardState.exploration}</div>
+        <div class="mx-3">${helper.getTrackIcon("science")}: ${boardState.science}</div>
+        <div class="ml-3">${helper.getTrackIcon("technology")}: ${boardState.technology}</div>
+    )`;
+}
+
+export function drawClaimLandmark() {
+    let landmarks = gamestate.automaState.landmarks;
+    let html = "";    
+    for(var trackName in landmarks) {        
+        html += `<div class="h5 d-flex flex-row justify-content-center ${trackName !== "military" ? "mt-3" : ""} ">${helper.getTrackIcon(trackName)} ${helper.snakeToCamel(trackName)}</div><div class="d-flex flex-row justify-content-center">`;       
+        let btnColor = helper.getTrackColor(trackName);
+        let tier = 2;
+        for (const key of Object.keys(landmarks[trackName])) {
+            let tierDisplay = "II";
+            switch(tier) {
+                case 2:
+                    tierDisplay = "II";
+                    break;
+                case 3:
+                    tierDisplay = "III";
+                    break;
+                case 4:
+                    tierDisplay = "IV";
+                    break;
+            }           
+            html += `<div class="mx-1"><button type="button" class="btn btn-${landmarks[trackName][key].claimed ? "secondary" : btnColor} btn-block" data-claim-landmark="${trackName}|${key}">${landmarks[trackName][key].claimed ? "Un-Claim" : "Claim"} ${landmarks[trackName][key].name}<br/>(Tier ${tierDisplay})</button></div>`;
+            tier++;
+        }
+       
+        html += "</div>";
+    }
+    return html;
+}
+
+export function formatUserMessage(message) {
+  return  `<div class="alert alert-info" role="alert" style="position: absolute; top: 0; right: 0;">
+  ${message}
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>`
 }

@@ -12,6 +12,11 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" sizes="192x192" href="/images/icons/icon-192x192.png">
+    <link rel="apple-touch-icon" href="/images/icons/icon-192x192.png">
+    <link rel="shortcut icon" type="image/png" href="/images/icons/icon-192x192.png"/>
+    <link rel="manifest" href="manifest.json" crossorigin="use-credentials">
+    <meta name="theme-color" content="#d4aa00">
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
@@ -53,6 +58,18 @@
         border: solid 2px red;
       }
 
+      .btn {
+        white-space:normal !important;
+        word-wrap: break-word;
+      }
+
+      .selected-game-option,
+      .selected-game-option:focus {
+        border: solid 3px black !important  ;
+      }
+
+      button * {pointer-events: none;}
+
       body {
         min-height:100vh;
         background-color: #F8EECA;
@@ -76,25 +93,218 @@
     </nav>
     <main role="main" class="flex-fill">
       <div class="container">
-          <div class="row text-center mt-1">
-            <div class="col-12 col-md-4 order-1">
-              <button id="newgame" type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#modalConfirmNewGame"><i class="fas fa-plus-circle"></i> Start New Game</button>
+          <div class="d-flex flex-row justify-content-center">
+            <div class="mr-1">
+              <button id="newgame" type="button" class="btn btn-info btn-block" data-toggle="modal" data-target="#modalConfirmNewGame"><i class="fas fa-plus-circle"></i><br/>Start New Game</button>
             </div>         
-            <div class="col-12 col-md-4 my-1 my-md-0 order-2 order-md-3">
-              <button id="takeincome" type="button" class="btn btn-success btn-block" disabled><i class="fas fa-dollar-sign"></i> Take Automa Income</button>
+            <div class="mr-1">
+              <button id="takeincome" type="button" class="btn btn-success btn-block" disabled><i class="fas fa-dollar-sign"></i><br/>Income Turn</button>
             </div>
-            <div class="col-12 col-md-4 order-3 order-md-2">
-              <button id="taketurn" type="button" class="btn btn-secondary btn-block" disabled><i class="fas fa-arrow-circle-right"></i> Take Automa Turn</button>
+            <div class="mr-1">
+              <button id="taketurn" type="button" class="btn btn-primary btn-block" disabled><i class="fas fa-arrow-circle-right"></i><br/>Advanced Turn</button>
             </div>
+            <div class="">
+              <button type="button" id="claim-landmark" class="btn btn-secondary btn-block" data-toggle="modal" data-target="#modalClaimLandmark" disabled><i class="fas fa-home"></i><br/>Claim Landmark</button>
+            </div>                     
           </div>
-          <div class="row bg-warning my-2">           
+          <div class="row bg-warning my-2">
             <div class="text-center col-3">Era: <span class="font-italic" id="era">&mdash;</span></div> 
             <div class="text-center col-5">Progress: <span class="font-italic" id="progress">&mdash;</span> (<span class="font-italic text-muted" id="currentcards">&mdash;</span>)</div>            
             <div class="text-center col-4">Discard: <a href="#" class="" id="viewdiscard"><span class="font-italic" id="discard">&mdash;</span></a></div>           
           </div>   
-          <div id="view-setup" class="row">
-            <div class="collapse col" id="collapseSetup">
-              <h3>Setup</h3>
+          <div id="view-setup" class="row">             
+            <div class="col-12 text-center">
+              <p>
+                  <div class="font-weight-bold col-12 text-center mb-2">Choose a civilization for the Automa:</div>
+    
+                  <div class="d-flex flex-row justify-content-center"> 
+                    <button type="button" class="btn btn-success mr-1" data-automa-civilization="scientists"><img src="images/science.png" class="track-icon" alt="science" /><br/>Scientists</button>
+                    <button type="button" class="btn btn-primary mr-1" data-automa-civilization="explorers"><img src="images/exploration.png" class="track-icon" alt="exploration" /><br/>Explorers</button>
+                    <button type="button" class="btn btn-danger mr-1" data-automa-civilization="conquerers"><img src="images/military.png" class="track-icon" alt="military" /><br/>Conquerers</button>
+                    <button type="button" class="btn btn-warning mr-1" data-automa-civilization="engineers"><img src="images/technology.png" class="track-icon" alt="technology" /><br/>Engineers</button>  
+                  </div>
+              </p>      
+              <p>
+                  <div class="font-weight-bold col-12 text-center mb-2">Choose a difficulty level for the Automa.</div>
+    
+                  <div class="d-flex flex-row justify-content-center">
+                    <button type="button" class="btn btn-success mr-1 selected-game-option" data-automa-difficulty="1">Level<br/>1</button>
+                    <button type="button" class="btn btn-primary mr-1" data-automa-difficulty="2">Level<br/>2</button>
+                    <button type="button" class="btn btn-warning mr-1" data-automa-difficulty="3">Level<br/>3</button>
+                    <button type="button" class="btn btn-danger mr-1" data-automa-difficulty="4">Level<br/>4</button>  
+                  </div>
+              </p>
+              <p class="d-flex flex-row justify-content-center mt-5">                         
+                <button id="btnBeginGame" type="button" class="btn btn-primary m-2"><i class="fas fa-play-circle"></i><br />Begin Game</button>
+                <button id="btnResumeGame" type="button" class="btn btn-dark m-2"><i class="fas fa-share-square"></i><br />Resume Game</button>
+              </p>
+            </div>
+            <div class="col-12 text-center">
+              <a href="#" data-toggle="modal" data-target="#modalGameSetup">Show Setup</a> |    
+              <a target="_blank" href="https://app.box.com/s/uqp6m71co7gdyfahz5qamp3bd7o1v06i">Download the rules</a>
+            </div>
+          </div>
+
+          <div id="view-cards" class="row" style="display:none;">
+            <div class="h4 mb-0 col-12 justify-content-center d-flex">
+              <img id="automa-meeple" src="" alt="automa meeple" class="meeple-icon align-self-center mr-1" /> Automa <span class="ml-1 font-weight-light font-italic"> (Level: <span id="automa-level">1</span>)</span>
+            </div>
+            <div id="automa-board" class="col-12 justify-content-center d-flex mt-0">
+                
+            </div>
+            <div id="automaResult1" class="h6 col-12 text-center text-dark font-italic"></div>
+            <div class="col-12 text-center mb-2">
+                <img src="images/right-arrow.png" alt="right arrow" />
+            </div>
+            <div id="automaResult2" class="col-12 justify-content-center d-flex">
+            </div>
+            <div class="col-12 text-center mt-2">
+              <img src="images/left-arrow.png" alt="left arrow" />
+            </div>
+            <div class="h4 mb-0 col-12 justify-content-center d-flex mt-3">
+              <img id="shadowempire-meeple" src="" alt="shadow empire meeple" class="meeple-icon align-self-center mr-1" /> Shadow Empire            
+            </div>            
+            <div id="shadow-board" class="col-12 justify-content-center d-flex mt-0">
+                  
+            </div>
+            <div id="shadowEmpireResult" class="h6 col-12 text-center text-dark font-italic"></div>
+            </div>
+            <hr />
+            <div class="d-flex col-12 justify-content-center mt-2">
+              <img id="income" src="images/income.png" alt="income" class="mx-2 align-self-center" style="display:none;" />
+              <img id="conquer-tiebreaker" src="" alt="conquer tie-breaker" class="mx-2" style="display:none;" />
+              <img id="topple" src="images/topple.png" alt="topple" class="mx-2 align-self-center" style="display:none;" />
+            </div>           
+          </div>          
+      </div>      
+    </main>
+
+    <footer class="footer mt-auto text-center">
+        <div class="d-flex justify-content-center">
+            <a id="gameReview" class="mx-2" href="#">Show Current Game State?</a> | <a id="saveGame" href="#" class="mx-2">Save Game</a>
+        </div>
+
+        <div class="small text-light bg-dark py-3 flex-fill">
+          <div class="text-muted">&mdash; Created by Sterling Heibeck. Inspired by Tapestry.</div>
+          <div class="text-muted">&mdash; <a target="_blank" href="https://stonemaiergames.com/games/tapestry/">Tapestry</a> is created and owned by Stonemaier Games.</div>
+          <div class="text-muted">&mdash; This is not an official Stonemaier Games project.</div>
+          <div class="text-muted">&mdash; Icons courtesy of <a target="_blank" href="https://game-icons.net">game-icons.net</a></div>
+        </div>
+    </footer>
+
+    <!-- game messages -->
+    <div id="modalGameMessage" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title">Game Message</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>            
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- confirm -->
+    <div id="modalConfirmNewGame" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog model-sm" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title">Confirm New Game</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            Are you sure you want start a new game? Your existing game will be overwritten.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button id="newGameYes" type="button" class="btn btn-primary" data-dismiss="modal">Yes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Confirm Income -->
+    <div id="modalConfirmIncome" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog model-sm" role="document">
+          <div class="modal-content">
+            <div class="modal-header bg-warning">
+              <h5 class="modal-title">Confirm Take Income</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              Are you sure you want the Automa to take income? The Automa will advance to the next era.
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+              <button id="takeIncomeYes" type="button" class="btn btn-primary" data-dismiss="modal">Yes</button>
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <!-- Game Instructions -->
+    <div id="modalGameInfo" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog model-sm" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title">Instructions</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body small">
+            <p>
+                Tapestry Bot will help you play solo Tapestry by maintaining the decision deck, tracking the board state for the Automa and Shadow Empire 
+                as well as telling you when to advance them on their tracks and when to claim landmarks. You will still need to move the Automa and Shadow
+                Empire components on the board and make some decisions related to Conquering.                
+            </p>
+            <ul>
+              <li>
+                Click <button type="button" class="btn btn-info btn-sm"><i class="fas fa-plus-circle"></i> Start New Game</button> to start a new game.
+                <ul>
+                  <li>After you confirm, click <button type="button" class="btn btn-primary btn-sm"><i class="fas fa-play-circle"></i> Begin Game</button> and follow the instructions in the popup.</li>                  
+                  <li>During the course of play you will be prompted to take Income Turns for the Automa as necessary.</li>
+                </ul>               
+              </li>
+              <li>When the Automa takes an Income Turn click <button type="button" class="btn btn-success btn-sm"><i class="fas fa-dollar-sign"></i> Income Turn</button> and follow the instructions in the popup.</li>
+              <li>To take an Advanced Turn with the Automa click <button type="button" class="btn btn-primary btn-sm"><i class="fas fa-arrow-circle-right"></i> Advanced Turn</button> and follow the instructions noted in the Game Message popup.</li>
+              <li>If you or the automa need to claim a landmark click <button type="button" class="btn btn-secondary btn-sm"><i class="fas fa-home"></i> Claim Landmark</button> and choose the landmark to claim. Clicking the button for an already claimed landmark will un-claim it.</li>
+              <li>View the discard pile by clicking on the number next to Discard in the yellow bar.</li>
+              <li>Review all the cards played across all eras by the Automa by clicking on <em>Show Current Game State</em> link at the bottom of the page.</li>
+              <li>Save your current game by clicking the <a href="#">Save Game</a> link at the bottom of the page. Once a game is saved, you can restore it by clicking <button type="button" class="btn btn-info btn-sm"><i class="fas fa-plus-circle"></i> Start New Game</button>, then clicking <button type="button" class="btn btn-dark m-2 btn-sm"><i class="fas fa-share-square"></i> Resume Game</button>. Only one saved game is support  ed.</li>
+            </ul>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>     
+    </div>
+
+    <!-- Start Game -->
+    <div id="modalGameSetup" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title">Game Setup</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+              <h3>Components</h3>
               <p>
                 Remove the following tapestry cards from play: 
                 <ul>
@@ -113,6 +323,7 @@
                   <li>Trap (x2)</li>                  
                 </ul>
               </p>
+              <h3>Components</h3> 
               <p>
               Set up as you would for a 3-player game except that you always start on the territory labeled <strong>“2/4”</strong> no matter which capital city mat you’re using.
               </p>
@@ -134,150 +345,63 @@
                   </ol>
                 </ol>
               </ol>
-            </div>                
-            <div class="col-12 text-center">
-              <a class="btn btn-secondary m-2" data-toggle="collapse" href="#collapseSetup" role="button" aria-expanded="false" aria-controls="collapseSetup">
-                  <i class="fas fa-book"></i> Show Setup
-                </a>
-              <button id="startgame" type="button" data-dismiss="modal" class="btn btn-primary m-2"><i class="fas fa-play-circle"></i> Begin Game</button>            
-            </div>
-            <div class="col-12 text-center">
-              <a target="_blank" href="https://app.box.com/s/uqp6m71co7gdyfahz5qamp3bd7o1v06i">Download the rules</a>
-            </div>
           </div>
-
-          <div id="view-cards" class="row" style="display:none;">
-            <div class="h4 col-12 justify-content-center d-flex"><img id="automa-meeple" src="" alt="automa meeple" class="meeple-icon align-self-center mr-1" /> Automa</div>
-            <div id="automaResult1" class="h6 col-12 text-center text-dark font-italic"></div>
-            <div class="col-12 text-center mb-2">
-                <img src="images/right-arrow.png" alt="right arrow" />
-            </div>
-            <div id="automaResult2" class="d-flex col-12 justify-content-center">                   
-            </div>
-            <div class="col-12 text-center mt-2">
-              <img src="images/left-arrow.png" alt="left arrow" />
-            </div>
-            <div class="h4 col-12 justify-content-center d-flex mt-3"><img id="shadowempire-meeple" src="" alt="shadow empire meeple" class="meeple-icon align-self-center mr-1" /> Shadow Empire</div>
-            <div id="shadowEmpireResult" class="h6 col-12 text-center text-dark font-italic"></div>
-            </div>
-
-            <hr />
-            <div class="d-flex col-12 justify-content-center mt-2">
-              <img id="income" src="images/income.png" alt="income" class="mx-2 align-self-center" style="display:none;" />
-              <img id="conquer-tiebreaker" src="" alt="conquer tie-breaker" class="mx-2" style="display:none;" />
-              <img id="topple" src="images/topple.png" alt="topple" class="mx-2 align-self-center" style="display:none;" />
-            </div>           
-          </div>          
-      </div>      
-    </main>
-
-    <footer class="footer mt-auto text-center">
-        <div class="d-flex justify-content-center">
-            <a id="gameReview" href="#" class="text-right">Show Current Game State?</a>
-        </div>
-
-        <div class="small text-light bg-dark py-3 flex-fill">
-          <div class="text-muted">&mdash; Created by Sterling Heibeck. Inspired by Tapestry.</div>
-          <div class="text-muted">&mdash; <a target="_blank" href="https://stonemaiergames.com/games/tapestry/">Tapestry</a> is created and owned by Stonemaier Games.</div>
-          <div class="text-muted">&mdash; This is not an official Stonemaier Games project.</div>
-          <div class="text-muted">&mdash; Icons courtesy of <a target="_blank" href="https://game-icons.net">game-icons.net</a></div>
-        </div>
-    </footer>
-
-    <!-- game messages -->
-    <div id="modalGameMessage" class="modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-lg" role="document">
-          <div class="modal-content">
-            <div class="modal-header bg-warning">
-              <h5 class="modal-title">Game Message</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>            
-            </div>
+          <div class="modal-footer">    
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>          
           </div>
         </div>
       </div>
-
-      <!-- confirm -->
-      <div id="modalConfirmNewGame" class="modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog model-sm" role="document">
-          <div class="modal-content">
-            <div class="modal-header bg-warning">
-              <h5 class="modal-title">Confirm New Game</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              Are you sure you want start a new game? Your existing game will be overwritten.
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-              <button id="newGameYes" type="button" class="btn btn-primary" data-dismiss="modal">Yes</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    
-      <div id="modalConfirmIncome" class="modal" tabindex="-1" role="dialog">
-          <div class="modal-dialog model-sm" role="document">
-            <div class="modal-content">
-              <div class="modal-header bg-warning">
-                <h5 class="modal-title">Confirm Take Income</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                Are you sure you want the Automa to take income? The Automa will advance to the next era.
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button id="takeIncomeYes" type="button" class="btn btn-primary" data-dismiss="modal">Yes</button>
-              </div>
-            </div>
-          </div>
-      </div>
-
-      <div id="modalGameInfo" class="modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog model-sm" role="document">
-          <div class="modal-content">
-            <div class="modal-header bg-warning">
-              <h5 class="modal-title">Instructions</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body small">
-              <ul>
-                <li>
-                  Click <button type="button" class="btn btn-primary btn-sm"><i class="fas fa-plus-circle"></i> Start New Game</button> to start a new game.
-                  <ul>
-                    <li>After you confirm, click <button type="button" class="btn btn-primary btn-sm"><i class="fas fa-play-circle"></i> Begin Game</button> and follow the instructions in the popup.</li>
-                    <li>The application will automatically create and maintain the Automa <strong>era, progress deck (decision card pair), and discarded cards</strong> which are displayed in the yellow bar under the main buttons.</li>
-                    <li>During the course of play you will be prompted to take Income Turns for the Automa as necessary.</li>
-                  </ul>
-                </li>
-                <li>When the Automa takes an Income Turn click <button type="button" class="btn btn-success btn-sm"><i class="fas fa-dollar-sign"></i> Take Automa Income</button> and follow the instructions in the popup.</li>
-                <li>To take an Advanced Turn with the Automa click <button type="button" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-circle-right"></i> Take Automa Turn</button></li>
-                <li>View the discard pile by clicking on the number next to Discard in the yellow bar.</li>
-                <li>Review all the cards played across all eras by the Automa by clicking on <em>Show Current Game State</em> link at the bottom of the page.</li>
-              </ul>
-
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-          </div>
-        </div>
     </div>
 
+    <!-- Claim Landmark -->
+    <div id="modalClaimLandmark" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog model-sm" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title">Start Game</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+
+          </div>
+          <div class="modal-footer">    
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>          
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- New Favorite -->
+    <div id="modalNewFavorite" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog model-sm" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title">Check For New Favorite</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">           
+          </div>
+          <div class="modal-footer">    
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>          
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/service-worker-updatefound-refresh-dialog@1.1.0/dist/service-worker-updatefound-refresh-dialog.umd.js"></script>
+    <script>
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/sw.js')
+                .then(function(registration) {
+                    serviceWorkerUpdatefoundRefreshDialog.register(registration);
+                });
+        });
+    </script>
+    
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
