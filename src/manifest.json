@@ -3,7 +3,7 @@
     "short_name": "TapBot",
     "theme_color": "#d4aa00",
     "background_color": "#cccccc",
-    "display": "standalone",
+    "display": "fullscreen",
     "Scope": "/",
     "start_url": "/?utm_source=a2hs",
     "prefer_related_applications": false,
