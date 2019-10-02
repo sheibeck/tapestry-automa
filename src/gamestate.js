@@ -390,9 +390,16 @@ export function getDecisionPair(incomeTurnDecision) {
     let rightCard = null;
 
     if (!incomeTurnDecision) {
-        //get the card pair
+        //get the card pair        
         leftCard = app.getCardDetails(proxyAutomaState.currentCards[0]);     
         rightCard = app.getCardDetails(proxyAutomaState.currentCards[1]);
+
+        //fetch the last decision pair from the discard pile if we check
+        //the decision pair and had already discarded it.
+        if (proxyAutomaState.currentCards.length === 0) {
+            leftCard = app.getCardDetails(proxyAutomaState.discard[1]);
+            rightCard = app.getCardDetails(proxyAutomaState.discard[0]);
+        }
     }
     else {
         //if the automa needs a tie breaker during an income turn,
