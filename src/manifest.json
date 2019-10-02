@@ -3,9 +3,9 @@
     "short_name": "TapBot",
     "theme_color": "#d4aa00",
     "background_color": "#cccccc",
-    "display": "fullscreen",
+    "display": "standalone",
     "Scope": "/",
-    "start_url": "/",
+    "start_url": "/?utm_source=a2hs",
     "icons": [
       {
         "src": "images/icons/icon-72x72.png",

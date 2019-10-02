@@ -14,15 +14,6 @@ import * as dice from "./dice";
 import { cardData } from "./data";
 import * as helper from "./helper";
 
-if ('serviceWorker' in navigator) {
-    const registration = runtime.register();
-}
-
-Sentry.init({
-    dsn: 'https://4ab621601e4c4b5da68ad015be899b4d@sentry.io/1731084',
-    environment: process.env.NODE_ENV,
-});
-
 //-------------------------------
 //PRIVATE METHODS
 //-------------------------------
@@ -600,12 +591,22 @@ export function resumeGame() {
     helper.showUserMessage("Game Restored.");
 }
 
-if(!navigator.onLine){
-    document.body.innerHTML = '<h2>Tapestry Bot requires an internet connection.</h2>'
-} else {
-    //INITIALIZE
+function init() {       
+    Sentry.init({
+        dsn: 'https://4ab621601e4c4b5da68ad015be899b4d@sentry.io/1731084',
+        environment: process.env.NODE_ENV,
+    });
+    
     dom.initEvents();
     setupNewGame();
+}
 
-    var x = 1;
+if ('serviceWorker' in navigator) {
+    const registration = runtime.register();
+}
+
+if(!navigator.onLine){
+    document.body.innerHTML = '<h2>Tapestry Bot requires an internet connection.</h2>'
+} else {    
+    init();    
 }
