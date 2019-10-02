@@ -6,6 +6,7 @@
     "display": "standalone",
     "Scope": "/",
     "start_url": "/?utm_source=a2hs",
+    "prefer_related_applications": false,
     "icons": [
       {
         "src": "images/icons/icon-72x72.png",
