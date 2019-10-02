@@ -2,7 +2,7 @@ var appCacheFiles = [
 	'/'
 ], 
 // The name of the Cache Storage
-appCache = 'tapestry-bot-v2.1';
+appCache = 'tapestry-bot-v2.2';
 
 /**
  * The install event is fired when the service worker 
