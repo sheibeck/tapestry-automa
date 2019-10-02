@@ -2,7 +2,7 @@ var appCacheFiles = [
 	'/'
 ], 
 // The name of the Cache Storage
-appCache = 'tapestry-bot-v2.21';
+appCache = 'tapestry-bot-v2.22';
 
 /**
  * The install event is fired when the service worker 
@@ -13,7 +13,7 @@ addEventListener('install', (event) => {
 	console.log('Tapestry Bot Install Event', event)
 	event.waitUntil(
     	caches.open(appCache).then(function(cache) {
-	      return cache.addAll(appCacheFiles);
+	      return cache.addAll([appCacheFiles].map(url => new Request(url, {credentials: 'same-origin'})));
     	})
   	);
 })
