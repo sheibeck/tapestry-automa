@@ -13,7 +13,7 @@ export function advanceTracks() {
     app.gameMessage(message);
 }
 
-function getTrackAdvance(faction) {
+export function getTrackAdvance(faction) {
     let decision = gamestate.getDecisionPair(false);
     let track = null;
     switch (faction) {

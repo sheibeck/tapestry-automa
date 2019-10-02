@@ -498,14 +498,14 @@ export function showGameReview() {
 
 function gainIncomeTurnAdvancement() {
     let message = "";   
+    //gain an additional advancement if the difficulty is 3/4
     if (gamestate.getAutomaDifficulty() > 2) {
+        let recentDecisionPair = gamestate.getDecisionPair(false);
         message += "<h5 class='text-center'>Income Turn Advancement</h5>";
-        for(let faction in gamestate.enumFaction) {
-            for(let track in gamestate.enumTrack) {
-                //use the current decision card pair
-                message += gamestate.advanceOnTrack(1, faction, track, gamestate.getDecisionPair(true));            
-            }
-        }
+
+        //use the most recent decision card pair (which is different than a normal turn where we need a tiebreaker for an income action)
+        message += decision.getTrackAdvance(gamestate.enumFaction.automa);    
+        message += decision.getTrackAdvance(gamestate.enumFaction.shadowempire);
     }
 
     return message ? `<hr /> ${message}` : "";
