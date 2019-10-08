@@ -327,7 +327,7 @@ function gainTrackBenefit(track, position, decision, faction) {
 
             case enumBenefit.conquer:
                 let topple = decision.rightcard.topple ? " and Topples" : "";
-                benefitText +=  `<div class="text-center mt-1">&bull; The Automa <strong>Conquers${topple}</strong>. <br/> <img src="images/conquer-tiebreaker-${decision.rightcard.conquertiebreaker}.png" alt="tiebreaker" /> <img id="topple" src="images/topple.png" alt="topple" /></div>`;
+                benefitText +=  `<div class="text-center mt-1">&bull; The Automa <strong>Conquers${topple}</strong>. <br/> <img src="images/conquer-tiebreaker-${decision.rightcard.conquertiebreaker}.png" alt="tiebreaker" /> ${decision.rightcard.topple ? '<img id="topple" src="images/topple.png" alt="topple" />' : ''}</div>`;
                 break;
 
             case enumBenefit.sciencediex:
