@@ -18,6 +18,12 @@ addEventListener('install', (event) => {
  * https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API
  */
 addEventListener('activate', (event) => {
+
+	caches.keys().then(function(names) {
+		for (let name of names)
+			caches.delete(name);
+	});
+	  
 })
 
 /**
