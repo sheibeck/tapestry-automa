@@ -253,7 +253,7 @@ export function setShadowEmpireInitialFavorite() {
         roll = dice.rollScience();
     }
     setShadowEmpireFavoriteTrack(roll);
-    app.gameMessage(`<div class="text-center">The Shadow Empire's favorite track is now:</div> <div class="d-flex justify-content-center font-weight-bold mt-2">${helper.getTrackIcon(roll)} ${helper.snakeToCamel(roll)}</div>`);
+    app.gameMessage(`<div class="text-center">${getFactionLabel(enumFaction.shadowempire)}'s favorite track is now:</div> <div class="d-flex justify-content-center font-weight-bold mt-2">${helper.getTrackIcon(roll)} ${helper.snakeToCamel(roll)}</div>`);
 }
 
 export function setShadowEmpireFavoriteTrack(fav) {
@@ -322,12 +322,12 @@ function gainTrackBenefit(track, position, decision, faction) {
                 break;
             
             case enumBenefit.explore:
-                benefitText +=  `<div class="text-center mt-1">&bull; The Automa <strong>Explores</strong>.</div>`;
+                benefitText +=  `<div class="text-center mt-1">&bull; The Automa <strong>Explores</strong>. <br/> <img src="images/conquer-tiebreaker-${decision.rightcard.conquertiebreaker}.png" alt="tiebreaker" /></div>`;
                 break;
 
             case enumBenefit.conquer:
                 let topple = decision.rightcard.topple ? " and Topples" : "";
-                benefitText +=  `<div class="text-center mt-1">&bull; The Automa <strong>Conquers${topple}</strong>.</div>`;
+                benefitText +=  `<div class="text-center mt-1">&bull; The Automa <strong>Conquers${topple}</strong>. <br/> <img src="images/conquer-tiebreaker-${decision.rightcard.conquertiebreaker}.png" alt="tiebreaker" /> <img id="topple" src="images/topple.png" alt="topple" /></div>`;
                 break;
 
             case enumBenefit.sciencediex:

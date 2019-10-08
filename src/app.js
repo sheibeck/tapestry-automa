@@ -147,7 +147,7 @@ export function getCardDetails(id) {
     return card;
 }
 
-function displayAutomaResult(cards) {    
+function displayAutomaResult(cards) {       
     //clear the last result
     clearTurnResult();
    
@@ -312,6 +312,8 @@ export function takeAutomaTurn() {
         }        
     }
 
+    //save the game just in case something happens :D
+    app.saveGame();
 }
 
 export function confirmTakeIncome() {
@@ -341,11 +343,11 @@ export function takeIncomeTurn() {
     dom.disableElement(dom.btnConfirmTakeIncome, true);
 }
 
-
+//after we do some things like checking for favorites and all that, continue
 export function continueIncomeTurn() {
     let message = "";
-    message += `<div class="text-center">The Automa's favorite is :</div> <div class="d-flex justify-content-center font-weight-bold mt-2">${helper.getTrackIcon(gamestate.getAutomaFavoriteTrack())} ${gamestate.getAutomaFavoriteTrack().toUpperCase()}</div>`;
-    message += `<div class="text-center mt-3">The Shadow Empires's favorite is :</div> <div class="d-flex justify-content-center font-weight-bold mt-2">${helper.getTrackIcon(gamestate.getShadowEmpireFavoriteTrack())} ${gamestate.getShadowEmpireFavoriteTrack().toUpperCase()}</div>`;
+    message += `<div class="text-center">${gamestate.getFactionLabel(gamestate.enumFaction.automa)} favorite is :</div> <div class="d-flex justify-content-center font-weight-bold mt-2">${helper.getTrackIcon(gamestate.getAutomaFavoriteTrack())} ${gamestate.getAutomaFavoriteTrack().toUpperCase()}</div>`;
+    message += `<div class="text-center mt-3">${gamestate.getFactionLabel(gamestate.enumFaction.shadowempire)} favorite is :</div> <div class="d-flex justify-content-center font-weight-bold mt-2">${helper.getTrackIcon(gamestate.getShadowEmpireFavoriteTrack())} ${gamestate.getShadowEmpireFavoriteTrack().toUpperCase()}</div>`;
  
     //gain civilization bonus
     message += gainIncomeTurnAdvancement();
@@ -516,10 +518,7 @@ function gainIncomeTurnCivilizationBonus() {
     let message = "";
     if (gamestate.getAutomaDifficulty() > 1) {
         message += "<h5 class='text-center'>Civilization Bonus</h5>";
-        switch(gamestate.getAutomaCivilization()) {       
-            case gamestate.enumAutomaCivilization.conquerers:
-                
-                break;
+        switch(gamestate.getAutomaCivilization()) {                   
             case gamestate.enumAutomaCivilization.scientists:
                 switch(gamestate.getEra()) {
                     case 3:
@@ -527,6 +526,10 @@ function gainIncomeTurnCivilizationBonus() {
                     case 5:
                         let roll = dice.rollScience();
                         message += gamestate.advanceOnTrack(1, gamestate.enumFaction.automa, roll, gamestate.getDecisionPair(true), false, true);
+                        break;
+                    default:
+                        message += `<div class="text-center">N/A</div>`;
+                        break;
                 }
                 break;
             case gamestate.enumAutomaCivilization.explorers:
@@ -541,13 +544,30 @@ function gainIncomeTurnCivilizationBonus() {
                         break;
                 }
                 break;
-            case gamestate.enumAutomaCivilization.engineers:
-            
+            case gamestate.enumAutomaCivilization.conquerers:            
+            case gamestate.enumAutomaCivilization.engineers:          
+                message += `<div class="text-center">N/A</div>`;
                 break;
+
         }
     }
 
     return message ? `<hr /> ${message}` : "";
+}
+
+export function playTapestryCard(tapestryCard) {
+    var message = "";
+    switch(tapestryCard) {
+        case "age-of-discovery":
+            message += `<div class="col text-center">You played the tapestry card <strong>Age of Discovery</strong>.</div>`;
+            let roll = dice.rollScience();
+            let decisionPair = gamestate.getDecisionPair(false);
+            message += gamestate.advanceOnTrack(1, gamestate.enumFaction.automa, roll, decisionPair, true, true);
+            message += gamestate.advanceOnTrack(1, gamestate.enumFaction.shadowempire, roll, decisionPair, true, true);
+            break;
+    }
+
+    gameMessage(message);
 }
 
 

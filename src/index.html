@@ -181,7 +181,9 @@
 
     <footer class="footer mt-auto text-center">
         <div class="d-flex justify-content-center">
-            <a id="gameReview" class="mx-2" href="#">Show Current Game State?</a> | <a id="saveGame" href="#" class="mx-2">Save Game</a>
+            <button data-tapestry-card="age-of-discovery" class="mx-2 btn btn-link">Play <strong>Age of Discovery</strong> card</button>
+            <button id="gameReview" class="mx-2 btn btn-link">Show Current Game State</button>
+            <button id="saveGame" class="mx-2 btn btn-link">Save Game</button>
         </div>
 
         <div class="small text-light bg-dark py-3 flex-fill">
@@ -391,16 +393,6 @@
         </div>
       </div>
     </div>
-
-    <script src="https://unpkg.com/service-worker-updatefound-refresh-dialog@1.1.0/dist/service-worker-updatefound-refresh-dialog.umd.js"></script>
-    <script>
-        window.addEventListener('load', function() {
-            navigator.serviceWorker.register('/sw.js')
-                .then(function(registration) {
-                    serviceWorkerUpdatefoundRefreshDialog.register(registration);
-                });
-        });
-    </script>
     
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
