@@ -53,6 +53,11 @@ export function initEvents() {
             app.setNewFavorite(faction);        
         }
 
+        if (event.target.hasAttribute('data-tapestry-card')) {
+            var tapestryCard = event.target.getAttribute("data-tapestry-card");        
+            app.playTapestryCard(tapestryCard);        
+        }
+       
         else return;
 
     }, false);

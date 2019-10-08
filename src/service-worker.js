@@ -2,20 +2,14 @@ var appCacheFiles = [
 	'/'
 ], 
 // The name of the Cache Storage
-appCache = 'tapestry-bot-v2.3';
+appCache = 'tapestry-bot-v2.5';
 
 /**
  * The install event is fired when the service worker 
  * is installed.
  * https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API
  */
-addEventListener('install', (event) => {
-	console.log('Tapestry Bot Install Event', event)
-	event.waitUntil(
-    	caches.open(appCache).then(function(cache) {
-	      return cache.addAll([appCacheFiles].map(url => new Request(url, {credentials: 'same-origin'})));
-    	})
-  	);
+addEventListener('install', (event) => {	
 })
 
 /**
@@ -24,22 +18,6 @@ addEventListener('install', (event) => {
  * https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API
  */
 addEventListener('activate', (event) => {
-	console.log('Tapestry Bot Activate Event ', event)
-	
-	//remove outdated cache
-	event.waitUntil(
-		caches.keys().then(function(cacheNames) {
-		  return Promise.all(
-			cacheNames.filter(function(cacheName) {
-			  // Return true if you want to remove this cache,
-			  // but remember that caches are shared across
-			  // the whole origin
-			}).map(function(cacheName) {
-			  return caches.delete(cacheName);
-			})
-		  );
-		})
-	  );
 })
 
 /**
@@ -63,42 +41,3 @@ addEventListener('fetch', function(event) {
 addEventListener('message', (event) => {
 	console.log('Tapestry Bot Message Event: ', event.data)
 })
-
-/**
- * Listen for incoming Push events
- */
-addEventListener('push', (event) => {
-	console.log('Tapestry Bot Push Received.');
-	console.log(`Tapestry Bot Push had this data: "${event.data.text()}"`);
-
-	if (!(self.Notification && self.Notification.permission === 'granted'))
-		return;
-		
-	var data = {};
-  if (event.data)
-    data = event.data.json();
-
-	var title = data.title || "Web Push Notification";
-	var message = data.message || "New Push Notification Received";
-	var icon = "images/icons/icon-72x72.png";
-	var badge = 'images/icons/icon-72x72.png';
-	var options = {
-		body: message,
-		icon: icon,
-		badge: badge
-	};
-	event.waitUntil(self.registration.showNotification(title,options));
-});
-
-/**
- * Handle a notification click
- */
-addEventListener('notificationclick', (event) => {
-	console.log('Tapestry Bot Notification click: ', event);
-	event.notification.close();
-	event.waitUntil(
-		clients.openWindow('http://bit.ly/tapestrybot')
-	);
-});
-
-importScripts("https://unpkg.com/service-worker-updatefound-refresh-dialog@1.1.0/dist/service-worker-updatefound-refresh-dialog.umd.js");
