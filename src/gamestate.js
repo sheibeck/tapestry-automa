@@ -70,7 +70,7 @@ const trackBenefits = {
         9: [enumBenefit.physics],
         10: [enumBenefit.neuroscience],
         11: [enumBenefit.quantumphysics],
-        12: [enumBenefit.sciencediex,enumBenefit.sciencediex,enumBenefit.sciencediex,enumBenefit.sciencediex,enumBenefit.sciencediex]
+        12: [enumBenefit.sciencediex]
     },
     exploration: {
         0: [],       
@@ -354,11 +354,9 @@ function gainTrackBenefit(track, position, decision, faction) {
                 benefitText += advanceOnTrack(-1, faction, rollNeuroScience, decision, true, true);
                 break;
 
-            case enumBenefit.quantumphysics:
-                for(let i = 0; i < 2; i++) {
-                    let rollNeuroScience = dice.rollScienceDecision([enumDecisionTrack.military, enumDecisionTrack.technology, enumDecisionTrack.exploration]);
-                    benefitText += advanceOnTrack(-1, faction, rollNeuroScience, decision, true, true);
-                }
+            case enumBenefit.quantumphysics:                
+                let rollQuantumPhysics = dice.rollScienceDecision([enumDecisionTrack.military, enumDecisionTrack.technology, enumDecisionTrack.exploration]);
+                benefitText += advanceOnTrack(-1, faction, rollQuantumPhysics, decision, true, true);               
                 break;
         }
     }       
