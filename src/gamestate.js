@@ -355,8 +355,8 @@ function gainTrackBenefit(track, position, decision, faction) {
                 break;
 
             case enumBenefit.quantumphysics:                
-                let rollNeuroScience = dice.rollScienceDecision([enumDecisionTrack.military, enumDecisionTrack.technology, enumDecisionTrack.exploration]);
-                benefitText += advanceOnTrack(-1, faction, rollNeuroScience, decision, true, true);               
+                let rollQuantumPhysics = dice.rollScienceDecision([enumDecisionTrack.military, enumDecisionTrack.technology, enumDecisionTrack.exploration]);
+                benefitText += advanceOnTrack(-1, faction, rollQuantumPhysics, decision, true, true);               
                 break;
         }
     }       
